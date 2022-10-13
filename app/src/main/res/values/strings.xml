@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">SEAWAVeS</string>
+    <string name="subtitle">Sea-condition Emergency Alert and Warning Apparatus for Vessel Safety</string>
+    <string name="action_info">Configuration Info</string>
+    <string name="action_about">About</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string name="title_activity_splash">SEAWAVeS</string>
+    <string name="title_activity_info">Configuration Information</string>
+    <string name="title_activity_about">About the App</string>
+
+    <!-- Registration -->
+    <string name="reg_name">Boat\'s Name</string>
+    <string name="reg_owner">Your Name</string>
+    <string name="reg_owner_contact">Your Contact Number</string>
+    <string name="reg_length">Boat\'s Length (in meters)</string>
+    <string name="reg_width">Boat\'s Width (in meters)</string>
+    <string name="reg_height">Boat\'s Height (in meters)</string>
+    <string name="reg_register">Submit</string>
+    <string name="reg_instructions">Fill-in all information below to register.</string>
+
+    <!-- Preference Titles -->
+    <string name="boat_header">Boat\'s Details</string>
+    <string name="alarm_header">Alarm Angles</string>
+    <string name="other_header">Others</string>
+
+    <!-- Alarm Preferences -->
+    <string name="id_title">Identification Number</string>
+    <string name="owner_title">Owner</string>
+    <string name="owner_contact_title">Owner\'s Contact Number</string>
+    <string name="length_title">Length (in meters)</string>
+    <string name="width_title">Width (in meters)</string>
+
+    <!-- Reading Titles -->
+    <string name="pitch_title">Pitch Angle</string>
+    <string name="roll_title">Roll Angle</string>
+    <string name="heading_title">Heading Angle</string>
+    <string name="gyrox_title">Gyro-X</string>
+    <string name="gyroy_title">Gyro-Y</string>
+    <string name="gyroz_title">Gyro-Z</string>
+    <string name="accelx_title">Accel-X</string>
+    <string name="accely_title">Accel-Y</string>
+    <string name="accelz_title">Accel-Z</string>
+    <string name="magnetx_title">Magnet-X</string>
+    <string name="magnety_title">Magnet-Y</string>
+    <string name="magnetz_title">Magnet-Z</string>
+    <string name="lat_title">Latitude</string>
+    <string name="long_title">Longitude</string>
+    <string name="alt_title">Altitude</string>
+
+    <!-- Other Preferences -->
+    <string name="saving_title">Saving Rate (in milliseconds)</string>
+    <string name="reading_title">Reading Rate (in milliseconds)</string>
+    <string name="sms_title">SMS Rate (in milliseconds)</string>
+    <string name="post_title">Server Post Rate (in milliseconds)</string>
+    <string name="cp_title">Mobile Number (for alarms)</string>
+
+    <!-- preference keys -->
+    <string name="id_key">boat_id</string>
+    <string name="boat_key">boat_name</string>
+    <string name="owner_key">owner</string>
+    <string name="contact_key">owner_contact</string>
+    <string name="length_key">length</string>
+    <string name="width_key">width</string>
+    <string name="height_key">height</string>
+    <string name="pitch_key">pitch</string>
+    <string name="roll_key">roll</string>
+    <string name="reading_key">reading_timer</string>
+    <string name="saving_key">saving_timer</string>
+    <string name="sms_key">sms_timer</string>
+    <string name="post_key">post_timer</string>
+    <string name="cp_key">mobile_number</string>
+
+    <!-- Calibration -->
+    <string name="cal_instructions">Place the device in position and then tap the Start button.</string>
+    <string name="cal_start">Start</string>
+
+    <!-- Main Activity -->
+    <string name="main_status">Status</string>
+    <string name="main_stop">Stop</string>
+
+    <!-- About Activity -->
+    <string name="about_intro">The SEAWAVeS Mobile Application is part of the project “Design and Development of a Low-Cost Mobile Data Acquisition System for Small Crafts” of the Aklan State University - College of Industrial Technology, DOST VI, and DOST-PCIEERD. It was developed by the following:</string>
+    <string name="salido">Julie Ann A. Salido</string>
+    <string name="gelonga">Rowen R. Gelonga</string>
+    <string name="porcal">Abraham A. Porcal</string>
+    <string name="popes">Ma. Fe P. Popes</string>
+    <string name="oquendo">Miquel Von Oquendo</string>
+    <string name="martires">Mary Ann Martirez</string>
+    <string name="hilario">Kirk M. Hilario</string>
+
+</resources>
