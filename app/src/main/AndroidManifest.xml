@@ -21,13 +21,16 @@
         android:theme="@style/Theme.SEAWAVeSApp"
         tools:targetApi="31">
         <activity
+            android:name=".CalibrationActivity"
+            android:exported="false" />
+        <activity
             android:name=".InfoActivity"
             android:exported="false"
             android:label="@string/title_activity_info" />
         <activity
             android:name=".AboutActivity"
-            android:label="@string/title_activity_about"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/title_activity_about" />
         <activity
             android:name=".SetupActivity"
             android:exported="false"

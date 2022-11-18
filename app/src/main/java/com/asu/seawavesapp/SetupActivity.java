@@ -22,6 +22,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
 
     private SensorManager manager;
     private Sensor rotationVectorSensor;
+    private Sensor magneticFieldSensor;
 
     private final long readingDelay = 250; // milliseconds
     private float pitchAngle = 0f;
@@ -29,7 +30,9 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
 
     private TextView tvSetupPitch;
     private TextView tvSetupRoll;
+    private TextView tvLevel;
     private Button btStart;
+    private Button btCalibrate;
 
     private DecimalFormatter df = new DecimalFormatter(2);
 
@@ -42,6 +45,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
 
         tvSetupPitch = findViewById(R.id.tvSetupPitch);
         tvSetupRoll = findViewById(R.id.tvSetupRoll);
+        tvLevel = findViewById(R.id.setup_level);
         btStart = findViewById(R.id.btStart);
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +55,13 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
                 intent.putExtra("rollAngle", rollAngle);
                 startActivity(intent);
                 finish();
+            }
+        });
+        btCalibrate = findViewById(R.id.setup_calibrate);
+        btCalibrate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), CalibrationActivity.class));
             }
         });
 
@@ -64,7 +75,13 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         boolean response = true;
         if (manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == null) {
             Toast.makeText(getApplicationContext(),
-                    "The app was closed because your device has no rotation vector sensor, which is required by this application.", Toast.LENGTH_LONG).show();
+                    "Rotation vector sensor unavailable.", Toast.LENGTH_LONG).show();
+            finish();
+            response = false;
+        }
+        else if (manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) == null) {
+            Toast.makeText(getApplicationContext(),
+                    "Magnetic field sensor unavailable.", Toast.LENGTH_LONG).show();
             finish();
             response = false;
         }
@@ -77,7 +94,9 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         // checking if the device has the required sensor
         if (sensorAvailable()) {
             rotationVectorSensor = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            magneticFieldSensor = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
             manager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
+            manager.registerListener(this, magneticFieldSensor, SensorManager.SENSOR_DELAY_GAME);
             response = true;
         }
         return response;
@@ -143,7 +162,14 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            tvLevel.setText(accuracy == SensorManager.SENSOR_STATUS_ACCURACY_LOW ? "LOW" :
+                    accuracy == SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM ? "MEDIUM" :
+                    "HIGH");
+            if (accuracy < SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM) {
+                startActivity(new Intent(getApplicationContext(), CalibrationActivity.class));
+            }
+        }
     }
 }

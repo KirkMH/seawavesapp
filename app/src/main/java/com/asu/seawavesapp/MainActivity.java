@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,11 +30,11 @@ import com.asu.seawavesapp.log.ErrorLog;
 import com.asu.seawavesapp.log.HtmlFile;
 import com.asu.seawavesapp.log.ReadingLog;
 import com.asu.seawavesapp.service.Alert;
+import com.asu.seawavesapp.service.SmsService;
 import com.asu.seawavesapp.util.CompassHelper;
 import com.asu.seawavesapp.util.DecimalFormatter;
 import com.asu.seawavesapp.util.QueueToServer;
 import com.asu.seawavesapp.util.Sampler;
-import com.asu.seawavesapp.service.SmsService;
 import com.asu.seawavesapp.util.Utility;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -45,7 +44,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -168,7 +166,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finishAndRemoveTask();
+                // launch SetupActivity
+                startActivity(new Intent(getApplicationContext(), SetupActivity.class));
+                finish();
             }
         });
     }
@@ -767,20 +767,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 //        Log.v("headingangle", "isLocationRetrieved: " + isLocationRetrieved);
 
         if(isLocationRetrieved) {
+            // using TRUE heading
             headingAngle = heading + magneticDeclination;
             if(headingAngle > 360) { //if trueHeading was 362 degrees for example, it should be adjusted to be 2 degrees instead
                 headingAngle = headingAngle - 360;
             }
         }
+        else {
+            // using MAGNETIC heading
+            headingAngle = heading;
+        }
 //        Log.v("headingangle", "Heading Angle: " + headingAngle);
-
-
-        // using the TRUE heading
-        headingAngle = heading;
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-        // ignore
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // ignore this time
     }
 }

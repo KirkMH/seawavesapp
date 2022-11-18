@@ -76,6 +76,7 @@
         android:layout_marginTop="20dp"
         android:orientation="vertical"
         android:paddingBottom="@dimen/bottom_padding"
+        android:layout_marginBottom="@dimen/bottom_margin"
         android:layout_gravity="center"
         android:background="@drawable/rounded_rect_bg">
 
@@ -101,20 +102,54 @@
 
     </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="25dp"
+            android:textColor="@color/white"
+            android:text="@string/compass_accuracy" />
+
+        <TextView
+            android:id="@+id/setup_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:text="High" />
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="bottom">
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/setup_calibrate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="5dp"
+            android:backgroundTint="@color/light_gray"
+            android:textColor="@color/black"
+            android:text="Calibrate" />
 
         <Button
             android:id="@+id/btStart"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/gray"
+            android:layout_weight="1"
             android:backgroundTint="@color/teal_200"
-            android:text="@string/cal_start" />
+            android:text="@string/cal_start"
+            android:textColor="@color/black" />
 
     </LinearLayout>
 </LinearLayout>

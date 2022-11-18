@@ -91,4 +91,10 @@
     <string name="martires">Mary Ann Martirez</string>
     <string name="hilario">Kirk M. Hilario</string>
 
+    <!-- Calibration Activity -->
+    <string name="calibration_title">Calibrate SEAWAVeS compass</string>
+    <string name="calibration_subtitle">Tilt and move your phone 3 times like this:</string>
+    <string name="compass_accuracy">Compass accuracy:</string>
+    <string name="done">Done</string>
+
 </resources>
