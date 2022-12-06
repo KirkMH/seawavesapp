@@ -78,7 +78,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         super.onResume();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String sim = prefs.getString(getApplicationContext().getString(R.string.sim_key), "Default");
+        String sim = prefs.getString(getApplicationContext().getString(R.string.sim_key), "SIM1");
 
         tvSim.setText(sim);
     }

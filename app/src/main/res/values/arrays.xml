@@ -1,7 +1,6 @@
 <resources>
     <!-- Reply Preference -->
     <string-array name="sim_entries">
-        <item>Default</item>
         <item>SIM1</item>
         <item>SIM2</item>
     </string-array>
