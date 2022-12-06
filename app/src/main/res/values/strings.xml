@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">SEAWAVeS</string>
     <string name="subtitle">Sea-condition Emergency Alert and Warning Apparatus for Vessel Safety</string>
+    <string name="action_setting">Settings</string>
+    <string name="action_calibrate">Calibrate Map</string>
     <string name="action_info">Configuration Info</string>
     <string name="action_about">About</string>
 
@@ -10,6 +12,7 @@
     <string name="title_activity_splash">SEAWAVeS</string>
     <string name="title_activity_info">Configuration Information</string>
     <string name="title_activity_about">About the App</string>
+    <string name="title_activity_setup">Setup</string>
 
     <!-- Registration -->
     <string name="reg_name">Boat\'s Name</string>
@@ -94,7 +97,16 @@
     <!-- Calibration Activity -->
     <string name="calibration_title">Calibrate SEAWAVeS compass</string>
     <string name="calibration_subtitle">Tilt and move your phone 3 times like this:</string>
-    <string name="compass_accuracy">Compass accuracy:</string>
+    <string name="compass_accuracy">Compass Accuracy</string>
     <string name="done">Done</string>
+    <string name="selected_sim">Selected SIM</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="sim_header">SMS Setting</string>
+
+    <!-- SMS Preferences -->
+    <string name="sim_title">SIM for alerts</string>
+    <string name="sim_key">sim_key</string>
 
 </resources>

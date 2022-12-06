@@ -7,7 +7,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -45,6 +48,17 @@ public class CalibrationActivity extends AppCompatActivity implements SensorEven
         // ignore it here
     }
 
+    /**
+     * Vibrate for 500ms
+     */
+    private void vibratePhone() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(500);
+        }
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         level = accuracy;
@@ -62,6 +76,7 @@ public class CalibrationActivity extends AppCompatActivity implements SensorEven
             case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
                 tvLevel.setText("High");
                 tvLevel.setTextColor(Color.GREEN);
+                vibratePhone();
                 finish();
                 break;
         }

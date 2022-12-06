@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final int REQUEST_WRITE_EXTERNAL = 101;
     private final int REQUEST_READ_EXTERNAL = 102;
     private final int REQUEST_SEND_SMS = 103;
+    private final int REQUEST_PHONE_STATE = 104;
 
     private Long boatId;
     private String boatName;
@@ -135,8 +136,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        setSupportActionBar(binding.toolbar);
 
         // get initial angles
         Bundle extras = getIntent().getExtras();
@@ -476,7 +475,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         ActivityCompat.requestPermissions(MainActivity.this, new String[]
                                         {Manifest.permission.SEND_SMS},
                                 REQUEST_SEND_SMS);
-                    } else {
+                    } else if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+                            Manifest.permission.READ_PHONE_STATE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]
+                                        {Manifest.permission.READ_PHONE_STATE},
+                                REQUEST_PHONE_STATE);
+                    }
+                    else {
                         smsAlert();
                     }
                 } catch (Exception e) {
@@ -640,34 +646,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     startTrackingLocation();
                 }
                 break;
+            case REQUEST_SEND_SMS: case REQUEST_PHONE_STATE:
+                if (isPermissionGranted(grantResults, "Sending SMS")) {
+                    smsAlert();
+                }
+                break;
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_info) {
-            startActivity(new Intent(getApplicationContext(), InfoActivity.class));
-            return true;
-        }
-        else if (id == R.id.action_about) {
-            startActivity(new Intent(getApplicationContext(), AboutActivity.class));
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     // https://talesofcode.com/developing-compass-android-application/ (talesofcode)

@@ -4,7 +4,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    private static final String BASE_URL = "https://seawavesserver.herokuapp.com/api/";
+    private static final String BASE_URL = "https://seawavesserver.pythonanywhere.com/api/";
     private static RestApi api;
 
     public static RestApi getApi() {
