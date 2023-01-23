@@ -7,12 +7,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.asu.seawavesapp.api.ApiClient;
 import com.asu.seawavesapp.api.RestApi;
 import com.asu.seawavesapp.data.Setting;
 import com.asu.seawavesapp.databinding.ActivitySplashBinding;
+import com.google.android.material.snackbar.Snackbar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,7 +61,9 @@ public class SplashActivity extends AppCompatActivity {
 
             finish();
 
-            if (id == "" || critical == 0f) {
+            if (critical == 0f)
+                processErrorResponse(null, true);
+            else if (id == ""){
                 registerUser();
             }
             else {
@@ -97,18 +101,26 @@ public class SplashActivity extends AppCompatActivity {
                             .commit();
                 }
                 else
-                    processErrorResponse(call);
+                    processErrorResponse(call, false);
             }
 
             @Override
             public void onFailure(Call<Setting> call, Throwable t) {
-                processErrorResponse(call);
+                processErrorResponse(call, false);
             }
         });
     }
 
-    private void processErrorResponse(Call<Setting> call) {
-        Toast.makeText(getApplicationContext(), "Failed to retrieve setting configuration from the server. The last saved setting will be used. ", Toast.LENGTH_SHORT).show();
-        call.cancel();
+    private void processErrorResponse(Call<Setting> call, boolean required) {
+        if (required) {
+            LinearLayout llSplash = findViewById(R.id.llSplash);
+            Snackbar.make(llSplash, "Cannot retrieve settings from the server.", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("Retry", view -> getSetting());
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "Please ensure good internet connection. ", Toast.LENGTH_SHORT).show();
+        }
+        if (call != null)
+            call.cancel();
     }
 }

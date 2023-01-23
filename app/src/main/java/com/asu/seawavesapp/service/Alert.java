@@ -19,8 +19,8 @@ public class Alert {
     private Activity context;
     private MediaPlayer mediaPlayer;
     private String boatName;
-    private float pitchAngleAlert = 0f;
-    private float rollAngleAlert = 0f;
+    private static float pitchAngleAlert = 0f;
+    private static float rollAngleAlert = 0f;
     private int status = Alert.NORMAL;
     private TextView tvStatus;
     private int lastPlayed = 0;
@@ -33,27 +33,33 @@ public class Alert {
         tvStatus = context.findViewById(R.id.tvStatus);
     }
 
-    public int check(Reading reading) {
+    public static int checkReadingForAlert(Reading reading) {
         if (reading == null || reading.getPitchAngle() == null) return Alert.NORMAL;
 
         float pitch = Math.abs(reading.getPitchAngle());
         float roll = Math.abs(reading.getRollAngle());
+        int rStatus;
 
         if (pitch >= pitchAngleAlert || roll >= rollAngleAlert) {
-            status = Alert.RED;
+            rStatus = Alert.RED;
         }
         // 10% before critical
         else if (pitch >= (pitchAngleAlert * 0.9) || roll >= (rollAngleAlert * 0.9)) {
-            status = Alert.ORANGE;
+            rStatus = Alert.ORANGE;
         }
         // 20% before critical
         else if (pitch >= (pitchAngleAlert * .8) || roll >= (rollAngleAlert * 0.8)) {
-            status = Alert.YELLOW;
+            rStatus = Alert.YELLOW;
         }
         else {
-            status = Alert.NORMAL;
+            rStatus = Alert.NORMAL;
         }
 
+        return rStatus;
+    }
+
+    public int check(Reading reading) {
+        status = checkReadingForAlert(reading);
         return status;
     }
 
@@ -103,9 +109,13 @@ public class Alert {
     }
 
     public String getMessage() {
+        return getMessage("");
+    }
+
+    public String getMessage(String extraInfo) {
         String message = "";
         if (status != Alert.NORMAL) {
-            message = boatName + " is in " + getStatus().toUpperCase() + "!";
+            message = boatName + " is in " + getStatus().toUpperCase() + ". " + extraInfo;
         }
         return message;
     }

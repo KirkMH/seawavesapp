@@ -10,13 +10,17 @@
     <color name="yellow">#FFFF00</color>
     <color name="orange">#F57C00</color>
     <color name="red">#D32F2F</color>
+    <color name="blue">#006AB0</color>
+    <color name="dark_blue">#1E4580</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="light_blue_A200">#FF40C4FF</color>
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
+    <color name="teal_200_overlay">#FF018786</color>
     <color name="gray">#5A5A5A</color>
+    <color name="dark_gray">#3E3E3E</color>
     <color name="light_gray">#C3C3C3</color>
     <color name="light_gray_overlay">#4DC3C3C3</color>
-    <color name="maroon">#870102</color>
+    <color name="maroon">#922E31</color>
 </resources>

@@ -6,43 +6,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:keepScreenOn="true"
-    android:background="@color/teal_700"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/llDisplay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="@dimen/bottom_margin"
-        android:layout_marginBottom="@dimen/bottom_margin"
-        android:layout_marginLeft="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:gravity="center_vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:src="@drawable/ic_launcher_foreground" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:layout_marginLeft="@dimen/fab_margin"
-            android:text="@string/subtitle"
-            android:textColor="@color/light_gray"
-            android:textSize="18sp" />
-
-    </LinearLayout>
-
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="130dp"
+        android:src="@drawable/seawaves_logo" />
 
     <LinearLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/bottom_margin"
+        android:layout_marginBottom="30dp"
         android:orientation="vertical"
         android:paddingBottom="@dimen/rect_padding"
         android:layout_gravity="center"
@@ -54,7 +29,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:text="August 15, 2022  9:41 AM"
-            android:textColor="@color/light_gray"
+            android:textColor="@color/black"
             android:paddingTop="@dimen/inner_rect_margin"
             android:textSize="16sp" />
 
@@ -75,7 +50,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:text="@string/main_status"
-            android:textColor="@color/light_gray"
+            android:textColor="@color/gray"
             android:paddingBottom="@dimen/rect_padding"
             android:textSize="16sp" />
     </LinearLayout>
@@ -107,28 +82,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvHeading"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/heading_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/heading_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -142,28 +131,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvPitch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/pitch_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/pitch_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -177,28 +180,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvRoll"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/roll_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/roll_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -224,28 +241,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvGyroX"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/gyrox_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/gyrox_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -259,28 +290,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvGyroY"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/gyroy_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/gyroy_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -294,28 +339,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvGyroZ"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/gyroz_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/gyroz_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -341,28 +400,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvAccelX"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/accelx_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/accelx_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -376,28 +449,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvAccelY"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/accely_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/accely_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -411,28 +498,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvAccelZ"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/accelz_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/accelz_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -458,28 +559,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvMagnetX"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/magnetx_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/magnetx_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -493,28 +608,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvMagnetY"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/magnety_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/magnety_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -528,28 +657,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvMagnetZ"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/magnetz_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/magnetz_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -575,28 +718,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvLat"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/lat_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/lat_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -610,28 +767,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvLong"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/long_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/long_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -645,28 +816,42 @@
                     android:layout_gravity="center"
                     android:layout_weight="30"
                     android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/rect_padding">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvAlt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
-                        android:background="@drawable/rounded_rect"
-                        android:padding="@dimen/inner_rect_padding"
                         android:text="0.00"
                         android:textAlignment="center"
-                        android:textColor="@color/white"
+                        android:textColor="@color/dark_gray"
                         android:textSize="18sp" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/alt_title"
-                        android:textAlignment="center"
-                        android:textColor="@color/light_gray"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/alt_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -684,6 +869,6 @@
         android:layout_height="60dp"
         android:layout_margin="@dimen/fab_margin"
         android:textColor="@color/white"
-        android:backgroundTint="@color/maroon"
+        android:backgroundTint="@color/dark_gray"
         android:text="@string/main_stop" />
 </LinearLayout>

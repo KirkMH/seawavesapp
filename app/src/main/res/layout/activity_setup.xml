@@ -7,20 +7,38 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".SetupActivity"
-    android:background="@color/teal_700">
+    android:background="@color/white">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/teal_700"
+        android:background="@color/white"
         android:theme="@style/Theme.SEAWAVeSApp.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/black_overlay"
-            app:popupTheme="@style/Theme.SEAWAVeSApp.PopupOverlay" />
+            android:background="@color/white"
+            android:gravity="left"
+            app:theme="@style/Theme.SEAWAVeSApp.PopupOverlay" >
+
+            <ImageView
+                android:id="@+id/tv_header_title"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/seawaves_icon"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/dark_gray"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:textSize="24sp"
+                android:text="@string/title_activity_setup" />
+
+        </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -31,21 +49,10 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
 
-        <ImageView
-            android:layout_marginTop="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_launcher_foreground" />
-
-        <TextView
+        <Space
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:text="@string/app_name"
-            android:textSize="24sp"/>
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <TextView
             android:layout_marginTop="20dp"
@@ -55,7 +62,7 @@
             android:gravity="center"
             android:layout_marginBottom="25dp"
             android:text="@string/cal_instructions"
-            android:textColor="@color/light_gray"
+            android:textColor="@color/black"
             android:textSize="16sp" />
 
         <LinearLayout
@@ -63,8 +70,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="@dimen/bottom_padding"
-            android:layout_gravity="center"
-            android:background="@drawable/rounded_rect_bg">
+            android:background="@drawable/rounded_rect_white"
+            android:layout_gravity="center">
 
             <TextView
                 android:id="@+id/tvSetupPitch"
@@ -72,10 +79,10 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:layout_margin="@dimen/inner_rect_margin"
-                android:background="@drawable/rounded_rect"
+                android:background="@drawable/line_bottom"
                 android:padding="@dimen/setup_margin"
                 android:text="0.00"
-                android:textColor="@color/white"
+                android:textColor="@color/dark_gray"
                 android:textSize="28sp" />
 
             <TextView
@@ -83,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:text="@string/pitch_title"
-                android:textColor="@color/light_gray"
+                android:textColor="@color/gray"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -104,10 +111,10 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:layout_margin="@dimen/inner_rect_margin"
-                android:background="@drawable/rounded_rect"
+                android:background="@drawable/line_bottom"
                 android:padding="@dimen/setup_margin"
                 android:text="0.00"
-                android:textColor="@color/white"
+                android:textColor="@color/dark_gray"
                 android:textSize="28sp" />
 
             <TextView
@@ -115,12 +122,12 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:text="@string/roll_title"
-                android:textColor="@color/light_gray"
+                android:textColor="@color/gray"
                 android:textSize="14sp" />
 
         </LinearLayout>
 
-
+<!--
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -153,7 +160,7 @@
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="@string/selected_sim"
-                    android:textColor="@color/light_gray"
+                    android:textColor="@color/gray"
                     android:textSize="14sp" />
             </LinearLayout>
 
@@ -182,16 +189,16 @@
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="@string/compass_accuracy"
-                    android:textColor="@color/light_gray"
+                    android:textColor="@color/gray"
                     android:textSize="14sp" />
             </LinearLayout>
         </RelativeLayout>
-
+-->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:gravity="bottom"
             android:orientation="horizontal">
 
@@ -200,9 +207,20 @@
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/teal_200"
+                android:layout_margin="5dp"
+                android:backgroundTint="@color/dark_blue"
                 android:text="@string/cal_start"
-                android:textColor="@color/black" />
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/btClose"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/dark_gray"
+                android:text="@string/cal_close"
+                android:textColor="@color/white" />
 
         </LinearLayout>
 

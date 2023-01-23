@@ -2,7 +2,7 @@
     <string name="app_name">SEAWAVeS</string>
     <string name="subtitle">Sea-condition Emergency Alert and Warning Apparatus for Vessel Safety</string>
     <string name="action_setting">Settings</string>
-    <string name="action_calibrate">Calibrate Map</string>
+    <string name="action_calibrate">Calibrate Compass</string>
     <string name="action_info">Configuration Info</string>
     <string name="action_about">About</string>
 
@@ -77,7 +77,7 @@
     <string name="cp_key">mobile_number</string>
 
     <!-- Calibration -->
-    <string name="cal_instructions">Place the device in position and then tap the Start button.</string>
+    <string name="cal_instructions">Place the device in position and then\ntap the Start button.</string>
     <string name="cal_start">Start</string>
 
     <!-- Main Activity -->
@@ -108,5 +108,8 @@
     <!-- SMS Preferences -->
     <string name="sim_title">SIM for alerts</string>
     <string name="sim_key">sim_key</string>
+    <string name="title_activity_calibrate">Calibrate Compass</string>
+    <string name="title_activity_register">Register</string>
+    <string name="cal_close">Close App</string>
 
 </resources>

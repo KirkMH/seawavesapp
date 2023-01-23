@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.ArrayList;
 
@@ -54,6 +55,19 @@ public class InfoActivity extends AppCompatActivity {
 
         // display information
         bindAdapter(infoList, lvInfo);
+
+        // for the toolbar
+        Toolbar toolbar = findViewById(R.id.tbInfo);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.title_activity_info);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void retrieveInfoFromSharedPref() {

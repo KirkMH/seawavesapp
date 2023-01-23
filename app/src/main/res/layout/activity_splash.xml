@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/llSplash"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/teal_700"
+    android:background="@color/white"
     android:theme="@style/ThemeOverlay.SEAWAVeSApp.FullscreenContainer"
     tools:context=".SplashActivity">
 
@@ -21,7 +22,7 @@
             android:layout_height="wrap_content"
             android:foregroundTint="@color/design_default_color_primary"
             android:layout_gravity="center_horizontal|center_vertical"
-            android:src="@drawable/ic_launcher_foreground" />
+            android:src="@drawable/seawaves_logo" />
 
         <TextView
             android:layout_width="match_parent"
@@ -51,6 +52,7 @@
         android:layout_height="500px"
         android:layout_gravity="bottom|center_horizontal"
         android:gravity="center"
+        android:background="@color/light_blue_600"
         android:orientation="horizontal"
         tools:ignore="UselessParent">
 

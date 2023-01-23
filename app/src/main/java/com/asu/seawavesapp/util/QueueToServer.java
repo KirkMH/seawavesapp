@@ -21,10 +21,13 @@ public class QueueToServer implements Runnable {
     private Queue<Reading> queue;
     private RestApi restApi;
     public boolean killed;
+    private Reading lastAdded;
+    private Reading forSending = null;
 
-    Context context;
-    ReadingLog logger;
-    ErrorLog errorLog;
+    private Context context;
+    private ReadingLog logger;
+    private ErrorLog errorLog;
+    private Long postingDelay = 0L; // expected time difference between posts (in milliseconds)
 
     /**
      * Creates a queue that stores readings in preparation for server posting.
@@ -32,13 +35,22 @@ public class QueueToServer implements Runnable {
      * @param logger
      * @param errorLog
      */
-    public QueueToServer(Context context, ReadingLog logger, ErrorLog errorLog) {
+    public QueueToServer(Context context, ReadingLog logger, ErrorLog errorLog, Long postingDelay) {
         restApi = ApiClient.getApi();
         queue = new LinkedList<>();
         killed = false;
         this.context = context;
         this.logger = logger;
         this.errorLog = errorLog;
+        this.postingDelay = postingDelay;
+    }
+
+    /**
+     * Sets the posting delay for the queue
+     * @param postingDelay
+     */
+    public void setPostingDelay(Long postingDelay) {
+        this.postingDelay = postingDelay;
     }
 
     /**
@@ -60,22 +72,31 @@ public class QueueToServer implements Runnable {
      * Adds a reading to queue to server posting.
      * @param reading
      */
-    public void add(Reading reading) {
-        queue.add(reading);
-//        Log.v("queuetoserver", "Added " + reading);
-//        Log.v("queuetoserver", "Queue Count " + queue.size());
+    public synchronized void add(Reading reading) {
+        // make sure that it is a valid reading
+        if (reading != null && reading.isValid()) {
+            Log.v("qts.add", "Received " + reading);
+            // check if the time difference between the last received reading and this reading is as expected
+            boolean isTimeDifValid = true;
+            if (lastAdded != null) {
+                long diff = reading.getSentTimestampDate().getTime() - lastAdded.getSentTimestampDate().getTime();
+                isTimeDifValid = diff >= postingDelay;
+                Log.v("qts.add", "Time Diff: " + diff);
+            }
+            if (isTimeDifValid) {
+                Log.v("qts.add", "Added: " + reading);
+                queue.add(reading);
+                lastAdded = reading;
+            }
+        }
     }
 
     /**
      * Attempts to post a reading to the server.
      */
-    private void saveToServer(Reading reading) {
+    private synchronized void saveToServer(Reading reading) {
         Call<Reading> call = restApi.addReading(reading);
-
-        if (reading == null || reading.getHeadingAngle() == null) {
-            queue.remove(reading);
-            return;
-        }
+        Log.v("qts.save", reading.toString());
 
         call.enqueue(new Callback<Reading>() {
             @Override
@@ -86,16 +107,14 @@ public class QueueToServer implements Runnable {
                 }
                 else {
                     logger.write(responseReading, true);
-                    queue.remove(reading);
-//                    Log.v("queuetoserver", "Queue Count: " + queue.size() + "; Removed " + reading);
+                    forSending = null;
+                    Log.v("qts.save", "Sent " + reading);
                 }
             }
 
             @Override
             public void onFailure(Call<Reading> call, Throwable t) {
                 errorLog.write(t.getLocalizedMessage());
-//                Log.v("queuetoserver", "Error: " + t.getLocalizedMessage());
-//                Toast.makeText(context, "Cannot save reading to the server.", Toast.LENGTH_SHORT).show();
                 call.cancel();
             }
         });
@@ -104,12 +123,12 @@ public class QueueToServer implements Runnable {
 
     @Override
     public void run() {
-//        Log.v("queuetoserver", "running");
         while (!isKilled()) {
             while (!queue.isEmpty()) {
-                Reading reading = queue.peek();
-//                Log.v("queuetoserver", reading.toString());
-                saveToServer(reading);
+                if (forSending == null) {
+                    forSending = queue.remove();
+                    saveToServer(forSending);
+                }
                 try {
                     Thread.sleep(1000); // pause for 1 second before trying again
                 } catch (InterruptedException e) {
@@ -117,6 +136,5 @@ public class QueueToServer implements Runnable {
                 }
             }
         }
-//        Log.v("queuetoserver", "stopped");
     }
 }

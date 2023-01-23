@@ -16,26 +16,31 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/seawaves_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/seawaves_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.SEAWAVeSApp"
         tools:targetApi="31">
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
+            android:theme="@style/Theme.SEAWAVeSApp.NoActionBar"
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".CalibrationActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.SEAWAVeSApp.NoActionBar"
+            android:label="@string/title_activity_calibrate" />
         <activity
             android:name=".InfoActivity"
             android:exported="false"
+            android:theme="@style/Theme.SEAWAVeSApp.NoActionBar"
             android:label="@string/title_activity_info" />
         <activity
             android:name=".AboutActivity"
             android:exported="false"
+            android:theme="@style/Theme.SEAWAVeSApp.NoActionBar"
             android:label="@string/title_activity_about" />
         <activity
             android:name=".SetupActivity"
@@ -46,7 +51,9 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.SEAWAVeSApp.NoActionBar"
+            android:label="@string/title_activity_register" />
         <activity
             android:name=".SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

@@ -30,7 +30,10 @@ public class Reading {
         clear();
     }
 
-    public Reading(Long boatId, Float headingAngle, Float pitchAngle, Float rollAngle, Float gyroX, Float gyroY, Float gyroZ, Float accelX, Float accelY, Float accelZ, Float magX, Float magY, Float magZ, Float latitude, Float longitude, Float altitude, Date timestamp, String sent) {
+    public Reading(Long boatId, Float headingAngle, Float pitchAngle, Float rollAngle, Float gyroX,
+                   Float gyroY, Float gyroZ, Float accelX, Float accelY, Float accelZ,
+                   Float magX, Float magY, Float magZ, Float latitude, Float longitude, Float altitude,
+                   Date timestamp, String sent) {
         this.boatId = boatId;
         this.headingAngle = headingAngle;
         this.pitchAngle = pitchAngle;
@@ -144,6 +147,10 @@ public class Reading {
 
     public String getSent_timestamp() {
         return sent_timestamp;
+    }
+
+    public Date getSentTimestampDate() {
+        return Utility.timestampToDate(sent_timestamp);
     }
 
     public void setBoatId(Long boatId) {

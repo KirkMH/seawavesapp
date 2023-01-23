@@ -1,5 +1,6 @@
 package com.asu.seawavesapp.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -19,5 +20,15 @@ public class Utility {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         String timestamp = sdf.format(date);
         return timestamp;
+    }
+
+    public static Date timestampToDate(String timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date date = sdf.parse(timestamp);
+            return date;
+        } catch (ParseException e) {
+            return null;
+        }
     }
 }

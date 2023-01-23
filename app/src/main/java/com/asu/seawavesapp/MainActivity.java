@@ -13,8 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -47,7 +46,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -122,12 +120,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String message = "";
     private String phoneNumber = "";
 
-    private HashMap<String, String> reading;
     private QueueToServer savingQueue;
     private Thread thread;
     private Alert alert;
     private int lastPlayed = 0;
     private float magneticDeclination;
+    // for a more frequent posting when an alert is encounter
+    private final long ONE_MINUTE = 1000 * 60;
+    private boolean wasAlertTriggered = false;
+    private int noAlertCounter = 0;
 
 
     @Override
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sampler = new Sampler();
         alert = new Alert(this, boatName, pitchAngleAlert, rollAngleAlert);
-        savingQueue = new QueueToServer(getApplicationContext(), logger, errLogs);
+        savingQueue = new QueueToServer(getApplicationContext(), logger, errLogs, postingDelay);
         thread = new Thread(savingQueue);
         thread.start();
 
@@ -232,13 +233,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         this.boatId = Long.parseLong(pref.getString(getResources().getString(R.string.id_key), "0"));
         this.boatName = pref.getString(getResources().getString(R.string.boat_key), "Boat");
-        this.pitchAngleAlert = Float.parseFloat(pref.getString(getResources().getString(R.string.pitch_key), "0"));
-        this.rollAngleAlert = Float.parseFloat(pref.getString(getResources().getString(R.string.roll_key), "0"));
-        this.readingDelay = Long.parseLong(pref.getString(getResources().getString(R.string.reading_key), "0"));
-        this.smsDelay = Long.parseLong(pref.getString(getResources().getString(R.string.sms_key), "0"));
-        this.savingDelay = Long.parseLong(pref.getString(getResources().getString(R.string.saving_key), "0"));
-        this.postingDelay = Long.parseLong(pref.getString(getResources().getString(R.string.post_key), "0"));
-        this.phoneNumber = pref.getString(getResources().getString(R.string.contact_key), "096900338822");
+        this.pitchAngleAlert = Float.parseFloat(pref.getString(getResources().getString(R.string.pitch_key), "15"));
+        this.rollAngleAlert = Float.parseFloat(pref.getString(getResources().getString(R.string.roll_key), "20"));
+        this.phoneNumber = pref.getString(getResources().getString(R.string.contact_key), "09815639036");
+        initTimerPreferences();
+    }
+
+    private void initTimerPreferences() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        this.readingDelay = Long.parseLong(pref.getString(getResources().getString(R.string.reading_key), ONE_MINUTE + ""));
+        this.smsDelay = Long.parseLong(pref.getString(getResources().getString(R.string.sms_key), ONE_MINUTE + ""));
+        this.savingDelay = Long.parseLong(pref.getString(getResources().getString(R.string.saving_key), ONE_MINUTE + ""));
+        this.postingDelay = Long.parseLong(pref.getString(getResources().getString(R.string.post_key), ONE_MINUTE + ""));
     }
 
     /**
@@ -401,8 +407,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         if (!(grantResults.length > 0 &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-            Toast.makeText(getApplicationContext(), "The permission for " + permissionDescription + " was not granted yet.",
-                    Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "The permission for " + permissionDescription + " was not granted yet.",
+//                    Toast.LENGTH_LONG).show();
             result = false;
         }
 
@@ -450,18 +456,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
         };
-        postingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (isRunning)
-                        handler.postDelayed(this, postingDelay);
-                    postReading();
-                } catch (Exception e) {
-                    criticalErrorHandler(e);
-                }
-            }
-        };
+        setPostingRunnable();
         smsRunnable = new Runnable() {
             @Override
             public void run() {
@@ -495,7 +490,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         handler.postDelayed(dtRunnable, oneSecond);
         handler.postDelayed(readingRunnable, oneSecond);
         handler.postDelayed(savingRunnable, oneSecond);
-        handler.postDelayed(postingRunnable, oneSecond);
         handler.postDelayed(smsRunnable, oneSecond);
     }
 
@@ -567,8 +561,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void checkAlert(Reading reading) {
         int status = alert.check(reading);
-        if (status > Alert.NORMAL)
+        if (status > Alert.NORMAL) {
             sampler.add(reading); // save an extra sampling for the alert status
+            // make reading more frequent until "Normal"
+            this.wasAlertTriggered = true;
+            this.noAlertCounter = 0;
+            resetPostingDelay(ONE_MINUTE);
+            Log.v("alertF", "Triggered");
+        }
         alert.render();
     }
 
@@ -581,10 +581,66 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         logger.write(reading, savedToServer);
     }
 
+    private void setPostingRunnable() {
+        handler.removeCallbacks(postingRunnable);
+        Log.v("qts.set", "Handler for posting cancelled.");
+
+        postingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.v("qts.set", "Run Posting at " + postingDelay);
+                    postReading();
+                    if (isRunning)
+                        handler.postDelayed(this, postingDelay);
+                } catch (Exception e) {
+                    criticalErrorHandler(e);
+                }
+            }
+        };
+        handler.postDelayed(postingRunnable, 0);
+    }
+
+    private void resetPostingDelay(long delay) {
+        if (delay == this.postingDelay) return; // no update, so ignore
+
+        this.postingDelay = delay;
+        savingQueue.setPostingDelay(delay);
+        postReading();
+        Log.v("qts.set", "Posting delay: " + delay);
+        setPostingRunnable();
+    }
+
     private void postReading() {
         Reading reading = sampler.getReadingForPost();
         if (reading == null || reading.getHeadingAngle() == null) return;
         savingQueue.add(reading);
+        // checking for frequency
+        if (wasAlertTriggered) {
+            if (Alert.checkReadingForAlert(reading) != Alert.NORMAL) {
+                this.noAlertCounter = 0;
+                Log.v("alertF", ":" + Alert.checkReadingForAlert(reading));
+            }
+            else {
+                this.noAlertCounter++;
+                if (this.noAlertCounter >= 5) {
+                    this.wasAlertTriggered = false;
+                    initTimerPreferences();
+                    resetPostingDelay(this.postingDelay);
+                    sendSMS(boatName + "'s status has normalized.");
+                    Log.v("alertF", "Normalized");
+                }
+            }
+        }
+    }
+
+    private void sendSMS(String message) {
+        SmsService sms = new SmsService(this);
+        if (sms != null)
+            sms.send(phoneNumber, message);
+        else
+            Toast.makeText(getApplicationContext(), "Cannot send SMS.",
+                    Toast.LENGTH_SHORT).show();
     }
 
 
@@ -594,12 +650,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Alert smsAlert = new Alert(this, boatName, pitchAngleAlert, rollAngleAlert);
         int status = smsAlert.check(reading);
         if (status != Alert.NORMAL) {
-            SmsService sms = new SmsService(this);
-            if (sms != null)
-                sms.send(phoneNumber, smsAlert.getMessage());
-            else
-                Toast.makeText(getApplicationContext(), "Error: Cannot access SMS service.",
-                        Toast.LENGTH_SHORT).show();
+            sendSMS(smsAlert.getMessage("Location is at " +
+                    mLastLocation.getLongitude() + " deg. longitude, " +
+                    mLastLocation.getLatitude() + " deg. latitude."));
         }
     }
 
@@ -620,10 +673,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onResume() {
         super.onResume();
-//        if (!sensorsInitialized) {
-//            initSensors();
-//            registerSensors();
-//        }
 
         registerSensors();
         startTrackingLocation();

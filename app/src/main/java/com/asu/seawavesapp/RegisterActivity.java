@@ -38,7 +38,6 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        getSupportActionBar().hide();
 
         restApi = ApiClient.getApi();
         initUi();
@@ -147,7 +146,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     // launch MainActivity
                     finish();
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    startActivity(new Intent(getApplicationContext(), SetupActivity.class));
                 }
             }
 

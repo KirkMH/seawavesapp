@@ -14,6 +14,7 @@ import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CalibrationActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -78,6 +79,7 @@ public class CalibrationActivity extends AppCompatActivity implements SensorEven
                 tvLevel.setTextColor(Color.GREEN);
                 vibratePhone();
                 finish();
+                Toast.makeText(getApplicationContext(), "Compass accuracy is high.", Toast.LENGTH_SHORT).show();
                 break;
         }
     }

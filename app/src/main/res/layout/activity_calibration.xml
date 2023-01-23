@@ -7,6 +7,39 @@
     android:orientation="vertical"
     tools:context=".CalibrationActivity">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/dark_blue"
+        android:theme="@style/Theme.SEAWAVeSApp.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
+            android:gravity="left"
+            app:popupTheme="@style/Theme.SEAWAVeSApp.PopupOverlay" >
+
+            <ImageView
+                android:id="@+id/tv_header_title"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/seawaves_icon"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/dark_gray"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:textSize="24sp"
+                android:text="@string/title_activity_calibrate" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
