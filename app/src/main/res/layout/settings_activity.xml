@@ -15,8 +15,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
             android:theme="@style/Theme.SEAWAVeSApp.PopupOverlay"
-            android:gravity="left" >
-        </androidx.appcompat.widget.Toolbar>
+            android:gravity="start"></androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

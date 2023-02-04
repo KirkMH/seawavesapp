@@ -1,6 +1,7 @@
 package com.asu.seawavesapp.log;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,13 +11,22 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * The Logger class is the base class of logger files used in this project.
+ */
 public class Logger {
-    private Context context;
-    private File logFile;
+    private final Context context;
+    private final File logFile;
     private BufferedWriter file;
     private boolean firstWrite;
     private boolean isError = false;
 
+    /**
+     * Creates an instance of the Logger class.
+     *
+     * @param logFile - file to which logs will be written
+     * @param context - application context
+     */
     public Logger(File logFile, AppCompatActivity context) {
         this.logFile = logFile;
         this.context = context;
@@ -30,8 +40,7 @@ public class Logger {
         try {
             this.file = new BufferedWriter(new FileWriter(logFile, true));
         } catch (IOException e) {
-            Toast.makeText(context, "Error initializing logger files.", Toast.LENGTH_LONG).show();
-            isError = true;
+            displayError(e.getLocalizedMessage());
         }
     }
 
@@ -39,13 +48,19 @@ public class Logger {
         return context;
     }
 
-    protected String getFileUrl() {
+    /**
+     * Returns the absolute path of the log file.
+     *
+     * @return - absolute path
+     */
+    public String getFileUrl() {
         return logFile.getAbsolutePath();
     }
 
     /**
      * Determines whether an error occurred during this class's operation or not
-     * @return
+     *
+     * @return <code>true</code> if an error occurred during processing; <code>false</code> otherwise
      */
     public boolean isError() {
         return isError;
@@ -53,7 +68,8 @@ public class Logger {
 
     /**
      * Determines whether or not it is the first time to write in this log file
-     * @return
+     *
+     * @return <code>true</code> if it is the first time to write; <code>false</code> otherwise
      */
     public boolean isFirstWrite() {
         return firstWrite;
@@ -61,7 +77,7 @@ public class Logger {
 
     /**
      * Takes a string parameter to be appended to the log file.
-     * @param str
+     * @param str - the string to write
      */
     public void write(String str) {
         // write to file
@@ -71,16 +87,19 @@ public class Logger {
             file.newLine();
             file.close();
             firstWrite = false;
+            Log.v("Logger", "wrote: " + str);
         } catch (Exception e) {
+            e.printStackTrace();
             displayError(e.getLocalizedMessage());
         }
     }
 
     /**
      * Displays the error message in a toast.
-     * @param message
+     * @param message - the error message to display
      */
     private void displayError(String message) {
+//        if (!isError())
         Toast.makeText(context, "Log Error: " + message, Toast.LENGTH_LONG).show();
         isError = true;
     }

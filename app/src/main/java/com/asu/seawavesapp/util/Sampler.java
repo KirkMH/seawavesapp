@@ -1,7 +1,5 @@
 package com.asu.seawavesapp.util;
 
-import android.util.Log;
-
 import com.asu.seawavesapp.data.Reading;
 
 public class Sampler {

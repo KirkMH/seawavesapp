@@ -22,6 +22,7 @@
             android:layout_height="wrap_content"
             android:foregroundTint="@color/design_default_color_primary"
             android:layout_gravity="center_horizontal|center_vertical"
+            android:contentDescription="@string/app_name"
             android:src="@drawable/seawaves_logo" />
 
         <TextView
@@ -49,7 +50,7 @@
         android:id="@+id/fullscreen_content_controls"
         style="@style/Widget.Theme.SEAWAVeSApp.ButtonBar.Fullscreen"
         android:layout_width="match_parent"
-        android:layout_height="500px"
+        android:layout_height="160dp"
         android:layout_gravity="bottom|center_horizontal"
         android:gravity="center"
         android:background="@color/light_blue_600"
@@ -67,6 +68,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
+            android:contentDescription="@string/pcieerd"
             android:src="@drawable/logo_dost_pcieerd" />
 
         <Space
@@ -80,6 +82,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
+            android:contentDescription="@string/dost"
             android:src="@drawable/logo_dost" />
 
         <Space
@@ -93,6 +96,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
+            android:contentDescription="@string/asu"
             android:src="@drawable/logo_asu512"/>
 
         <Space

@@ -7,8 +7,18 @@ import com.asu.seawavesapp.util.Utility;
 
 import java.io.File;
 
+/**
+ * ErrorLog is used to write the errors encountered while running the application.
+ * It is a subclass of the <code>Logger</code> class.
+ */
 public class ReadingLog extends Logger {
 
+    /**
+     * Creates an instance of the ReadingLog.
+     *
+     * @param logFile - log file to use
+     * @param context - application context
+     */
     public ReadingLog(File logFile, AppCompatActivity context) {
         super(logFile, context);
     }
@@ -16,8 +26,9 @@ public class ReadingLog extends Logger {
     /**
      * Writes the reading to the log file. If server is true,
      * 'Posted to server' will also be appended.
-     * @param reading
-     * @param server
+     *
+     * @param reading - the reading to write
+     * @param server  - set to <code>true</code> if this reading has been posted to the server
      */
     public void write(Reading reading, boolean server) {
         // ignore invalid readings
@@ -30,7 +41,7 @@ public class ReadingLog extends Logger {
         }
 
         // setup the content to be written
-        String content = "";
+        String content;
         if (server)
             content = reading.getFormattedTimestamp() + "," + reading;  // see toString() of Reading
         else

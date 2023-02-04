@@ -2,8 +2,27 @@ package com.asu.seawavesapp.util;
 
 import android.hardware.GeomagneticField;
 
-// https://talesofcode.com/developing-compass-android-application/
+/**
+ * CompassHelper calculates the heading angle more accurately,
+ * taking the magnetic declination into account.
+ * <p>
+ * Source: https://talesofcode.com/developing-compass-android-application/
+ */
 public class CompassHelper {
+    /**
+     * Possible values: 0 ≤ ALPHA ≤ 1
+     * Default: 0.15f
+     * Note: Smaller ALPHA results in smoother sensor data but slower updates
+     */
+    public static final float ALPHA = 0.15f;
+
+    /**
+     * Calculates the heading angle based on the accelerometer and magnetometer readings.
+     *
+     * @param accelerometerReading - accelerometer reading
+     * @param magnetometerReading  - magnetometer reading
+     * @return heading angle in radians
+     */
     public static float calculateHeading(float[] accelerometerReading, float[] magnetometerReading) {
         float Ax = accelerometerReading[0];
         float Ay = accelerometerReading[1];
@@ -39,20 +58,33 @@ public class CompassHelper {
         return (float) Math.atan2(Hy, My);
     }
 
-
+    /**
+     * Converts the radians to degrees.
+     *
+     * @param rad - measure in radians
+     * @return - measure in degrees
+     */
     public static float convertRadtoDeg(float rad) {
         return (float) (rad / Math.PI) * 180;
     }
 
-    //map angle from [-180,180] range to [0,360] range
+    /**
+     * Maps the angle from [-180,180] format to [0,360] format.
+     *
+     * @param angle - original angle
+     * @return mapped angle
+     */
     public static float map180to360(float angle) {
         return (angle + 360) % 360;
     }
 
-    //0 ≤ ALPHA ≤ 1
-    //smaller ALPHA results in smoother sensor data but slower updates
-    public static final float ALPHA = 0.15f;
-
+    /**
+     * Makes sensor readings smoother using a low pass filter.
+     *
+     * @param input  - sensor reading
+     * @param output - previous reading/filtered result
+     * @return filtered result
+     */
     public static float[] lowPassFilter(float[] input, float[] output) {
         if (output == null) return input;
 
@@ -62,17 +94,21 @@ public class CompassHelper {
         return output;
     }
 
+    /**
+     * Calculates the magnetic declination using <code>GeomagneticField</code>.
+     *
+     * @param latitude  - degrees latitude
+     * @param longitude - degrees longitude
+     * @param altitude  - altitude in meters
+     * @return magnetic declination
+     */
     public static float calculateMagneticDeclination(double latitude, double longitude, double altitude) {
-        // https://developer.android.com/reference/android/hardware/GeomagneticField.html
+        // source: https://developer.android.com/reference/android/hardware/GeomagneticField.html
         GeomagneticField geoMag = new GeomagneticField(
                 (float) latitude,
                 (float) longitude,
                 (float) altitude,
                 System.currentTimeMillis());
         return geoMag.getDeclination();
-        // don't know how to use TSAGeoMag yet
-//        TSAGeoMag geoMag = new TSAGeoMag();
-//        return (float) geoMag
-//                .getDeclination(latitude, longitude, geoMag.decimalYear(new GregorianCalendar()), altitude);
     }
 }

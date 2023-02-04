@@ -1,105 +1,76 @@
 package com.asu.seawavesapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.preference.PreferenceManager;
-
 import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.asu.seawavesapp.databinding.ActivitySetupBinding;
 import com.asu.seawavesapp.util.DecimalFormatter;
 
 public class SetupActivity extends AppCompatActivity implements SensorEventListener {
-    private ActivitySetupBinding binding;
-    private Handler handler = new Handler();
-    private Runnable readingRunnable;
-
+    private final Handler handler = new Handler();
+    private final DecimalFormatter df = new DecimalFormatter(2);
     private SensorManager manager;
-    private Sensor rotationVectorSensor;
-    private Sensor magneticFieldSensor;
+    private TextView tvSetupPitch;
+    private TextView tvSetupRoll;
 
     private final long readingDelay = 250; // milliseconds
     private float pitchAngle = 0f;
     private float rollAngle = 0f;
 
-    private TextView tvSetupPitch;
-    private TextView tvSetupRoll;
-//    private TextView tvLevel;
-//    private TextView tvSim;
-    private Button btStart;
-    private Button btClose;
-
     // for the permissions
     private final int REQUEST_CODE = 100;
 
-
-    private DecimalFormatter df = new DecimalFormatter(2);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivitySetupBinding.inflate(getLayoutInflater());
+        ActivitySetupBinding binding = ActivitySetupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
 
         tvSetupPitch = findViewById(R.id.tvSetupPitch);
         tvSetupRoll = findViewById(R.id.tvSetupRoll);
-//        tvLevel = findViewById(R.id.setup_level);
-//        tvSim = findViewById(R.id.setup_sim);
-        btStart = findViewById(R.id.btStart);
-        btStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("pitchAngle", pitchAngle);
-                intent.putExtra("rollAngle", rollAngle);
-                startActivity(intent);
-                finish();
-            }
+
+        // when the Start button is clicked, pass in the current
+        // pitch and roll angles (will serve as the initial position) to the MainActivity
+        // as this will be used for reading adjustment
+        Button btStart = findViewById(R.id.btStart);
+        btStart.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.putExtra("pitchAngle", pitchAngle);
+            intent.putExtra("rollAngle", rollAngle);
+            startActivity(intent);
+            finish();
         });
 
-        btClose = findViewById(R.id.btClose);
-        btClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finishAndRemoveTask();
-            }
-        });
+        Button btClose = findViewById(R.id.btClose);
+        btClose.setOnClickListener(view -> finishAndRemoveTask());
 
         checkPermissions();
-//        boolean askAgain = true;
-//        while (askAgain) {
-//            askAgain = checkPermissions();
-//        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//        String sim = prefs.getString(getApplicationContext().getString(R.string.sim_key), "SIM1");
-
-//        tvSim.setText(sim);
         boolean sensorInit = initSensors();
         if (sensorInit) {
             startTimer();
@@ -112,6 +83,12 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         handler.removeCallbacksAndMessages(null);
     }
 
+    /**
+     * Checks whether this app has the specified permissions.
+     *
+     * @param permissions - list of permissions to check
+     * @return <code>true</code> if all permissions exist; <code>false</code> othewise
+     */
     private boolean hasPermissions(String[] permissions) {
         boolean result = true;
         for (String perm : permissions) {
@@ -126,7 +103,6 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
      * Tries to get user permissions right on this activity.
      */
     private void checkPermissions() {
-//        boolean askAgain = false;
         String[] permissions = {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -139,54 +115,13 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         if (!hasPermissions(permissions)) {
             ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE);
         }
-//
-//        String state = Environment.getExternalStorageState();
-//        if (state.equals(Environment.MEDIA_MOUNTED)) {
-//            if (ActivityCompat.checkSelfPermission(this,
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(this, new String[]
-//                                {Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                        REQUEST_WRITE_EXTERNAL);
-//                askAgain = true;
-//            }
-//            if (ActivityCompat.checkSelfPermission(this,
-//                    Manifest.permission.READ_EXTERNAL_STORAGE)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(this, new String[]
-//                                {Manifest.permission.READ_EXTERNAL_STORAGE},
-//                        REQUEST_READ_EXTERNAL);
-//                askAgain = true;
-//            }
-//        }
-//        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
-//                Manifest.permission.SEND_SMS)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]
-//                            {Manifest.permission.SEND_SMS},
-//                    REQUEST_SEND_SMS);
-//            askAgain = true;
-//        }
-//        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
-//                Manifest.permission.READ_PHONE_STATE)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]
-//                            {Manifest.permission.READ_PHONE_STATE},
-//                    REQUEST_PHONE_STATE);
-//            askAgain = true;
-//        }
-//        if (ActivityCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]
-//                            {Manifest.permission.ACCESS_FINE_LOCATION},
-//                    REQUEST_LOCATION_PERMISSION);
-//            askAgain = true;
-//        }
-//
-//        return askAgain;
     }
 
+    /**
+     * Checks whether this device has rotation and magnetic field sensors available or not.
+     *
+     * @return <code>true</code> if required sensors are available; <code>false</code> otherwise
+     */
     private boolean sensorAvailable() {
         boolean response = true;
         if (manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == null) {
@@ -194,8 +129,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
                     "Rotation vector sensor unavailable.", Toast.LENGTH_LONG).show();
             finish();
             response = false;
-        }
-        else if (manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) == null) {
+        } else if (manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) == null) {
             Toast.makeText(getApplicationContext(),
                     "Magnetic field sensor unavailable.", Toast.LENGTH_LONG).show();
             finish();
@@ -204,13 +138,18 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         return response;
     }
 
+    /**
+     * Initializes the sensors when they are available.
+     *
+     * @return <code>true</code> if the initialization succeed; <code>false</code> otherwise
+     */
     private boolean initSensors() {
         boolean response = false;
         manager = (SensorManager) getSystemService(SENSOR_SERVICE);
         // checking if the device has the required sensor
         if (sensorAvailable()) {
-            rotationVectorSensor = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-            magneticFieldSensor = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            Sensor rotationVectorSensor = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            Sensor magneticFieldSensor = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
             manager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
             manager.registerListener(this, magneticFieldSensor, SensorManager.SENSOR_DELAY_GAME);
             response = true;
@@ -218,13 +157,19 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         return response;
     }
 
+    /**
+     * Displays the readings to the text views.
+     */
     private void displayReadings() {
         tvSetupPitch.setText(df.format(pitchAngle));
         tvSetupRoll.setText(df.format(rollAngle));
     }
 
+    /**
+     * Starts the reading timer.
+     */
     private void startTimer() {
-        readingRunnable = new Runnable() {
+        Runnable readingRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -247,13 +192,13 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
             System.arraycopy(sensorEvent.values, 0, vals, 0, n);
 
             // https://stackoverflow.com/questions/48975355/rotation-vector-sensor-values-to-azimuth-roll-and-pitch
-            double x = (double) vals[0];
-            double y = (double) vals[1];
-            double z = (double) vals[2];
-            double w = (double) vals[3];
+            double x = vals[0];
+            double y = vals[1];
+            double z = vals[2];
+            double w = vals[3];
 
             // normalize
-            double norm = Math.sqrt(x*x + y*y + z*z + w*w);
+            double norm = Math.sqrt(x * x + y * y + z * z + w * w);
             x /= norm;
             y /= norm;
             z /= norm;
@@ -265,7 +210,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
             double pitch = Math.atan2(sinP, cosP) * (180 / Math.PI);
 
             // calculate Tilt in degrees
-            double tilt = 0;
+            double tilt;
             double sinT = 2.0 * (w * y - z * x);
             if (Math.abs(sinT) >= 1)
                 tilt = Math.copySign(Math.PI / 2, sinT) * (180 / Math.PI);
@@ -280,9 +225,6 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-//            tvLevel.setText(accuracy == SensorManager.SENSOR_STATUS_ACCURACY_LOW ? "LOW" :
-//                    accuracy == SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM ? "MEDIUM" :
-//                    "HIGH");
             if (accuracy < SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM) {
                 // when accuracy is low, calibration is required
                 startActivity(new Intent(getApplicationContext(), CalibrationActivity.class));
@@ -291,7 +233,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;

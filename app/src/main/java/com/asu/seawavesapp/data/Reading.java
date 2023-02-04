@@ -1,35 +1,85 @@
 package com.asu.seawavesapp.data;
 
+import androidx.annotation.NonNull;
+
 import com.asu.seawavesapp.util.Utility;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
+/**
+ * The Reading class represents a record from the Reading table in the database.
+ * This class is also used to link to the server's API.
+ */
 public class Reading {
-    @SerializedName("id") Long id;
-    @SerializedName("boat") Long boatId;
-    @SerializedName("heading_angle") Float headingAngle;
-    @SerializedName("pitch_angle") Float pitchAngle;
-    @SerializedName("roll_angle") Float rollAngle;
-    @SerializedName("gyro_x") Float gyroX;
-    @SerializedName("gyro_y") Float gyroY;
-    @SerializedName("gyro_z") Float gyroZ;
-    @SerializedName("accel_x") Float accelX;
-    @SerializedName("accel_y") Float accelY;
-    @SerializedName("accel_z") Float accelZ;
-    @SerializedName("mag_x") Float magX;
-    @SerializedName("mag_y") Float magY;
-    @SerializedName("mag_z") Float magZ;
-    @SerializedName("latitude") Float latitude;
-    @SerializedName("longitude") Float longitude;
-    @SerializedName("altitude") Float altitude;
-    @SerializedName("timestamp") Date timestamp;
-    @SerializedName("sent_timestamp") String sent_timestamp;
+    @SerializedName("id")
+    Long id;
+    @SerializedName("boat")
+    Long boatId;
+    @SerializedName("heading_angle")
+    Float headingAngle;
+    @SerializedName("pitch_angle")
+    Float pitchAngle;
+    @SerializedName("roll_angle")
+    Float rollAngle;
+    @SerializedName("gyro_x")
+    Float gyroX;
+    @SerializedName("gyro_y")
+    Float gyroY;
+    @SerializedName("gyro_z")
+    Float gyroZ;
+    @SerializedName("accel_x")
+    Float accelX;
+    @SerializedName("accel_y")
+    Float accelY;
+    @SerializedName("accel_z")
+    Float accelZ;
+    @SerializedName("mag_x")
+    Float magX;
+    @SerializedName("mag_y")
+    Float magY;
+    @SerializedName("mag_z")
+    Float magZ;
+    @SerializedName("latitude")
+    Float latitude;
+    @SerializedName("longitude")
+    Float longitude;
+    @SerializedName("altitude")
+    Float altitude;
+    @SerializedName("timestamp")
+    Date timestamp;
+    @SerializedName("sent_timestamp")
+    String sent_timestamp;
 
+    /**
+     * Creates an instance of the Reading class with null values.
+     */
     public Reading() {
         clear();
     }
 
+    /**
+     * Creates an instance of the Reading class with given values.
+     *
+     * @param boatId       - Boat's ID
+     * @param headingAngle - Heading angle
+     * @param pitchAngle   - Pitch angle
+     * @param rollAngle    - Roll angle
+     * @param gyroX        - Gyroscope reading in the X-axis
+     * @param gyroY        - Gyroscope reading in the Y-axis
+     * @param gyroZ        - Gyroscope reading in the Z-axis
+     * @param accelX       - Accelerometer reading in the X-axis
+     * @param accelY       - Accelerometer reading in the Y-axis
+     * @param accelZ       - Accelerometer reading in the Z-axis
+     * @param magX         - Magnetometer reading in the X-axis
+     * @param magY         - Magnetometer reading in the Y-axis
+     * @param magZ         - Magnetometer reading in the Z-axis
+     * @param latitude     - Latitude, in degrees
+     * @param longitude    - Longitude, in degrees
+     * @param altitude     - Altitude, in meters
+     * @param timestamp    - Timestamp of the reading
+     * @param sent         - Date/time when the reading is sent to the server
+     */
     public Reading(Long boatId, Float headingAngle, Float pitchAngle, Float rollAngle, Float gyroX,
                    Float gyroY, Float gyroZ, Float accelX, Float accelY, Float accelZ,
                    Float magX, Float magY, Float magZ, Float latitude, Float longitude, Float altitude,
@@ -53,7 +103,13 @@ public class Reading {
         this.timestamp = timestamp;
         this.sent_timestamp = sent;
     }
-    
+
+    /**
+     * Returns a clone of this reading.
+     *
+     * @return clone
+     */
+    @NonNull
     public Reading clone() {
         Reading rClone = new Reading();
         rClone.boatId = this.boatId;
@@ -225,14 +281,27 @@ public class Reading {
         this.sent_timestamp = sent_timestamp;
     }
 
+    /**
+     * Returns the timestamp in yyyy-MM-dd HH:mm:ss format.
+     *
+     * @return formatted timestamp
+     */
     public String getFormattedTimestamp() {
         return timestamp == null ? null : Utility.formatTimestamp(timestamp);
     }
 
+    /**
+     * Returns the timestamp in yyyy-MM-dd'T'HH:mm:ss'Z' (SQL format).
+     *
+     * @return formatted timestamp in SQL format
+     */
     public String getFormattedTimestampForServer() {
         return timestamp == null ? null : Utility.formatTimestampForServer(timestamp);
     }
-    
+
+    /**
+     * Clears the values of this reading.
+     */
     public void clear() {
         this.boatId = null;
         this.headingAngle = null;
@@ -257,13 +326,15 @@ public class Reading {
     /**
      * Will only consider valid if the heading angle and the latitude are available
      * (assumes the longitude is also if latitude is available)
-     * @return
+     *
+     * @return <code>true</code> if the reading is valid; <code>false</code> otherwise
      */
     public boolean isValid() {
         return ((headingAngle != null && headingAngle > 0) &&
                 (latitude != null && latitude > 0));
     }
 
+    @NonNull
     @Override
     public String toString() {
         return headingAngle +

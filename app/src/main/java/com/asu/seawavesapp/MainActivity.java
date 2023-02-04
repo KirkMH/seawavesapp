@@ -14,7 +14,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +25,6 @@ import androidx.core.app.ActivityCompat;
 import com.asu.seawavesapp.data.Reading;
 import com.asu.seawavesapp.databinding.ActivityMainBinding;
 import com.asu.seawavesapp.log.ErrorLog;
-import com.asu.seawavesapp.log.HtmlFile;
 import com.asu.seawavesapp.log.ReadingLog;
 import com.asu.seawavesapp.service.Alert;
 import com.asu.seawavesapp.service.SmsService;
@@ -49,7 +47,6 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private ActivityMainBinding binding;
     private TextView tvDateTime;
     private TextView tvStatus;
     private TextView tvHeading;
@@ -92,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private ReadingLog logger;  // CSV file to store reading logs
     private ErrorLog errLogs; // text file that will store errors encountered
-    private HtmlFile htmlContent; // will be used to generate contents for the Info and About pages
 
     private SensorManager manager;
     private Sensor mGyroscope;
@@ -105,37 +101,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Location mLastLocation;
     LocationCallback mLocationCallback;
 
-    private Handler handler = new Handler();
-    private Runnable readingRunnable;
-    private Runnable smsRunnable;
-    private Runnable savingRunnable;
+    private final Handler handler = new Handler();
     private Runnable postingRunnable;
-    private Runnable dtRunnable;
     private boolean isRunning = true;
-    private final Long locationDelay = 30000L; // 30 seconds
-    private Long readingDelay = 1000L; // milliseconds
-    private Long smsDelay = 1000L; // milliseconds
-    private Long savingDelay = 1000L; // milliseconds
-    private Long postingDelay = 1000L; // milliseconds
-    private String message = "";
+    private final long ONE_SECOND = 1000; // milliseconds
+    private final long ONE_MINUTE = ONE_SECOND * 60;
+    private Long smsDelay = ONE_MINUTE;
+    private Long savingDelay = ONE_MINUTE;
+    private Long postingDelay = ONE_MINUTE;
+    private Long readingDelay = ONE_SECOND;
     private String phoneNumber = "";
 
     private QueueToServer savingQueue;
-    private Thread thread;
     private Alert alert;
-    private int lastPlayed = 0;
     private float magneticDeclination;
     // for a more frequent posting when an alert is encounter
-    private final long ONE_MINUTE = 1000 * 60;
     private boolean wasAlertTriggered = false;
     private int noAlertCounter = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         // get initial angles
@@ -145,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             initRoll = extras.getFloat("rollAngle", 0f);
         }
 
-
         initLogger();
         initPreferences();
         initUi();
@@ -154,22 +141,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sampler = new Sampler();
         alert = new Alert(this, boatName, pitchAngleAlert, rollAngleAlert);
-        savingQueue = new QueueToServer(getApplicationContext(), logger, errLogs, postingDelay);
-        thread = new Thread(savingQueue);
-        thread.start();
+        savingQueue = new QueueToServer(logger, errLogs, postingDelay);
+        savingQueue.schedule();
 
         if (sensorInit)
             startTimer();
         if (sensorsInitialized)
             registerSensors();
 
-        btStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // launch SetupActivity
-                startActivity(new Intent(getApplicationContext(), SetupActivity.class));
-                finish();
-            }
+        btStop.setOnClickListener(view -> {
+            // launch SetupActivity
+            startActivity(new Intent(getApplicationContext(), SetupActivity.class));
+            finish();
         });
     }
 
@@ -201,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String filename = sdf.format(new Date()) + ".csv";
 
         // prepare the log file
-        File folder;
+        File folder = null;
+        boolean canWriteToSd = false;
         if (isSdPresent) {
             // SD Card present
             try {
@@ -209,21 +193,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             } catch (Exception e) {
                 folder = getApplicationContext().getExternalFilesDirs(null)[0];
             }
+            if (folder != null)
+                canWriteToSd = folder.canWrite();
         }
-        else {
-            // no SD card; store to internal storage
+        if (!isSdPresent || !canWriteToSd) {
+            // no SD card or cannot write to it; store to internal storage
             folder = new File(getApplicationContext().getFilesDir(), "logs");
             if (!folder.exists()) folder.mkdir();
-            Toast.makeText(getApplicationContext(), "No SD card found. Using the internal memory.",
-                    Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "Cannot write to SD card. Using the internal memory.",
+//                    Toast.LENGTH_SHORT).show();
         }
 
         File logFile = new File(folder, filename);
         logger = new ReadingLog(logFile, this);
+        Log.v("Logger", "Reading: " + logger.getFileUrl());
         File errorFile = new File(folder, "errors.txt");
         errLogs = new ErrorLog(errorFile, this);
-        File htmlFile = new File(folder, "info.html");
-        htmlContent = new HtmlFile(htmlFile, this);
+        Log.v("Logger", "Error: " + errLogs.getFileUrl());
     }
 
     /**
@@ -239,6 +225,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         initTimerPreferences();
     }
 
+    /**
+     * Initialize timers based on <code>SharedPreferences</code>.
+     */
     private void initTimerPreferences() {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         this.readingDelay = Long.parseLong(pref.getString(getResources().getString(R.string.reading_key), ONE_MINUTE + ""));
@@ -286,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 isLocationRetrieved = false;
                 if (mLastLocation != null) {
                     DecimalFormatter df = new DecimalFormatter(6);
+                    // display location details
                     tvLatitude.setText(df.format((float) mLastLocation.getLatitude()));
                     tvLongitude.setText(df.format((float) mLastLocation.getLongitude()));
                     if (mLastLocation.hasAltitude()) {
@@ -295,8 +285,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         isLocationRetrieved = true;
                     }
                 } else {
-                    tvLatitude.setText("0.00");
-                    tvLongitude.setText("0.00");
+                    // if no location is retrieved, set to zero
+                    tvLatitude.setText(R.string.zero);
+                    tvLongitude.setText(R.string.zero);
                 }
             }
         };
@@ -305,12 +296,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /**
      * Method called by requestLocationUpdates() method in startTrackingLocation()
      * that uses high accuracy level and refreshes every 30 seconds.
-     * @return
+     *
+     * @return instance of <code>LocationRequest</code>
      */
     private LocationRequest getLocationRequest() {
+        final long locationDelay = 30 * ONE_SECOND; // 30 seconds
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(locationDelay);
-        locationRequest.setFastestInterval(30000); // 30 seconds
+        locationRequest.setFastestInterval(locationDelay);
         locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
         return locationRequest;
     }
@@ -354,9 +347,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             passed = true;
 
         if (!passed) {
-            String s = noSensors.get(0);
+            StringBuilder s = new StringBuilder(noSensors.get(0));
             for (int i = 1; i < noSensors.size(); i++) {
-                s += ", " + noSensors.get(i);
+                s.append(", ").append(noSensors.get(i));
             }
             Toast.makeText(getApplicationContext(), "Error: Required sensors undetected.",
                     Toast.LENGTH_LONG).show();
@@ -368,7 +361,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     /**
      * Initializes the sensors.
-     * @return
+     *
+     * @return <code>true</code> if initialization succeeds; <code>false</code> otherwise
      */
     private boolean initSensors() {
         boolean response = false;
@@ -398,39 +392,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     /**
      * Checks whether the specified permission was granted or not.
-     * @param grantResults
-     * @param permissionDescription
-     * @return
+     *
+     * @param grantResults - permission to check
+     * @return <code>true</code> if granted; <code>false</code> otherwise
      */
-    private boolean isPermissionGranted(int[] grantResults, String permissionDescription) {
-        boolean result = true;
-
-        if (!(grantResults.length > 0 &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-//            Toast.makeText(getApplicationContext(), "The permission for " + permissionDescription + " was not granted yet.",
-//                    Toast.LENGTH_LONG).show();
-            result = false;
-        }
-
-        return result;
+    private boolean isPermissionGranted(int[] grantResults) {
+        return grantResults.length > 0 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED;
     }
 
     private void startTimer() {
-        final Long oneSecond = 1000L;
-
-        dtRunnable = new Runnable() {
+        Runnable dtRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
                     if (isRunning)
-                        handler.postDelayed(this, oneSecond);
+                        handler.postDelayed(this, ONE_SECOND);
                     displayDateTime();
                 } catch (Exception e) {
                     criticalErrorHandler(e);
                 }
             }
         };
-        readingRunnable = new Runnable() {
+        Runnable readingRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -444,7 +428,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
         };
-        savingRunnable = new Runnable() {
+        Runnable savingRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -457,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         };
         setPostingRunnable();
-        smsRunnable = new Runnable() {
+        Runnable smsRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -476,8 +460,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         ActivityCompat.requestPermissions(MainActivity.this, new String[]
                                         {Manifest.permission.READ_PHONE_STATE},
                                 REQUEST_PHONE_STATE);
-                    }
-                    else {
+                    } else {
                         smsAlert();
                     }
                 } catch (Exception e) {
@@ -487,10 +470,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         };
 
         // wait for a second before starting the timers
-        handler.postDelayed(dtRunnable, oneSecond);
-        handler.postDelayed(readingRunnable, oneSecond);
-        handler.postDelayed(savingRunnable, oneSecond);
-        handler.postDelayed(smsRunnable, oneSecond);
+        handler.postDelayed(dtRunnable, ONE_SECOND);
+        handler.postDelayed(readingRunnable, ONE_SECOND);
+        handler.postDelayed(savingRunnable, ONE_SECOND);
+        handler.postDelayed(smsRunnable, ONE_SECOND);
     }
 
     private void criticalErrorHandler(Exception exception) {
@@ -563,13 +546,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         int status = alert.check(reading);
         if (status > Alert.NORMAL) {
             sampler.add(reading); // save an extra sampling for the alert status
+            // if first time that the alert was triggered, immediately post to server and send a message
+            if (!this.wasAlertTriggered) {
+                postReading(reading);
+                sendSMS(alert.getMessage("Location is at " +
+                        reading.getLongitude() + " deg. longitude, " +
+                        reading.getLatitude() + " deg. latitude."));
+            }
             // make reading more frequent until "Normal"
             this.wasAlertTriggered = true;
             this.noAlertCounter = 0;
             resetPostingDelay(ONE_MINUTE);
             Log.v("alertF", "Triggered");
         }
-        alert.render();
+        alert.render(tvStatus);
     }
 
     private void saveReading(Reading reading) {
@@ -590,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void run() {
                 try {
                     Log.v("qts.set", "Run Posting at " + postingDelay);
-                    postReading();
+                    postReading(null);
                     if (isRunning)
                         handler.postDelayed(this, postingDelay);
                 } catch (Exception e) {
@@ -606,22 +596,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         this.postingDelay = delay;
         savingQueue.setPostingDelay(delay);
-        postReading();
+        postReading(null);
         Log.v("qts.set", "Posting delay: " + delay);
         setPostingRunnable();
     }
 
-    private void postReading() {
-        Reading reading = sampler.getReadingForPost();
-        if (reading == null || reading.getHeadingAngle() == null) return;
+    /**
+     * Posts a reading to the server. If the reading is <code>null</code>, it indicates that it is
+     * an emergency post, and that reading will be sent immediately. Otherwise, it will get a reading
+     * from the sampler.
+     *
+     * @param reading - reading to post
+     */
+    private void postReading(Reading reading) {
+        if (reading == null)
+            reading = sampler.getReadingForPost();
+
+        if (reading.isValid()) return;
         savingQueue.add(reading);
+        saveReading(reading);
         // checking for frequency
         if (wasAlertTriggered) {
             if (Alert.checkReadingForAlert(reading) != Alert.NORMAL) {
                 this.noAlertCounter = 0;
                 Log.v("alertF", ":" + Alert.checkReadingForAlert(reading));
-            }
-            else {
+            } else {
                 this.noAlertCounter++;
                 if (this.noAlertCounter >= 5) {
                     this.wasAlertTriggered = false;
@@ -636,11 +635,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void sendSMS(String message) {
         SmsService sms = new SmsService(this);
-        if (sms != null)
-            sms.send(phoneNumber, message);
-        else
-            Toast.makeText(getApplicationContext(), "Cannot send SMS.",
-                    Toast.LENGTH_SHORT).show();
+        sms.send(phoneNumber, message);
     }
 
 
@@ -659,6 +654,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onStop() {
         super.onStop();
+        alert.stopAlert();
         isRunning = false;
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         manager.unregisterListener(this);
@@ -686,17 +682,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         switch (requestCode) {
             case REQUEST_READ_EXTERNAL: case REQUEST_WRITE_EXTERNAL:
-                if (isPermissionGranted(grantResults, "Read/Write External Storage")) {
+                if (isPermissionGranted(grantResults)) {
                     initLogger();
                 }
                 break;
             case REQUEST_LOCATION_PERMISSION:
-                if (isPermissionGranted(grantResults, "Location")) {
+                if (isPermissionGranted(grantResults)) {
                     startTrackingLocation();
                 }
                 break;
             case REQUEST_SEND_SMS: case REQUEST_PHONE_STATE:
-                if (isPermissionGranted(grantResults, "Sending SMS")) {
+                if (isPermissionGranted(grantResults)) {
                     smsAlert();
                 }
                 break;
@@ -711,7 +707,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         final int sensorType = sensorEvent.sensor.getType();
 
         if (sensorType == Sensor.TYPE_GYROSCOPE) {
-            int n = sensorEvent.values.length;
             float[] vals = sensorEvent.values.clone();
 
             // convert from rad/s to deg/s
@@ -720,19 +715,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             gyroZ = (float) (vals[2] * (180 / Math.PI));
         }
         else if (sensorType == Sensor.TYPE_ACCELEROMETER) {
-            int n = sensorEvent.values.length;
             float[] vals = sensorEvent.values.clone();
 
             accelX = vals[0];
             accelY = vals[1];
             accelZ = vals[2];
 
-            // talesofcode
-            //make sensor readings smoother using a low pass filter
+            // talesofcode: make sensor readings smoother using a low pass filter
             CompassHelper.lowPassFilter(sensorEvent.values.clone(), accelerometerReading);
         }
         else if (sensorType == Sensor.TYPE_MAGNETIC_FIELD) {
-            int n = sensorEvent.values.length;
             float[] vals = sensorEvent.values.clone();
 
             magnetX = vals[0];
@@ -744,7 +736,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             CompassHelper.lowPassFilter(sensorEvent.values.clone(), magnetometerReading);
         }
         else if (sensorType == Sensor.TYPE_ROTATION_VECTOR) {
-            int n = sensorEvent.values.length;
             float[] g = sensorEvent.values.clone();
 
             // https://stackoverflow.com/questions/48975355/rotation-vector-sensor-values-to-azimuth-roll-and-pitch
@@ -779,8 +770,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             double cosA = 1.0 - 2.0 * (y * y + z * z);
             double azimuth = Math.atan2(sinA, cosA) * (180 / Math.PI);
 
-//            headingAngle = (float) ((azimuth < 0) ? Math.abs(azimuth) : 180.0 + (180.0 - azimuth));
-//            headingAngle = (float) azimuth;
             pitchAngle = (float) pitch;
             rollAngle = (float) tilt;
         }
@@ -795,9 +784,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float heading = CompassHelper.calculateHeading(accelerometerReading, magnetometerReading);
         heading = CompassHelper.convertRadtoDeg(heading);
         heading = CompassHelper.map180to360(heading);
-//        Log.v("headingangle", "Heading: " + heading);
-//        Log.v("headingangle", "Magnetic Declination: " + magneticDeclination);
-//        Log.v("headingangle", "isLocationRetrieved: " + isLocationRetrieved);
 
         if(isLocationRetrieved) {
             // using TRUE heading
@@ -810,7 +796,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // using MAGNETIC heading
             headingAngle = heading;
         }
-//        Log.v("headingangle", "Heading Angle: " + headingAngle);
     }
 
     @Override

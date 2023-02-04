@@ -20,26 +20,7 @@ import androidx.appcompat.widget.Toolbar;
 import java.util.ArrayList;
 
 public class InfoActivity extends AppCompatActivity {
-    class Info {
-        private String description;
-        private String value;
-
-        public Info(String description, String value) {
-            this.description = description;
-            this.value = value;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
     ListView lvInfo;
-
     ArrayList<Info> infoList = new ArrayList<>();
 
     @Override
@@ -51,7 +32,7 @@ public class InfoActivity extends AppCompatActivity {
         lvInfo = findViewById(R.id.lvInfo);
 
         // retrieve info
-        retrieveInfoFromSharedPref();
+        infoList = retrieveInfoFromSharedPref();
 
         // display information
         bindAdapter(infoList, lvInfo);
@@ -64,22 +45,21 @@ public class InfoActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-
-    private void retrieveInfoFromSharedPref() {
+    /**
+     * Returns an <code>ArrayList</code> of <code>Info</code> from the SharedPreferences.
+     */
+    private ArrayList<Info> retrieveInfoFromSharedPref() {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         Resources res = getApplicationContext().getResources();
+        ArrayList<Info> infoList = new ArrayList<>();
+
         infoList.add(new Info("", "Boat Information"));
         infoList.add(new Info("Boat ID", pref.getString(res.getString(R.string.id_key), "0")));
         infoList.add(new Info("Boat Name", pref.getString(res.getString(R.string.boat_key), "Boat")));
         infoList.add(new Info("Boat Owner", pref.getString(res.getString(R.string.owner_key), "")));
         infoList.add(new Info("Owner Contact", pref.getString(res.getString(R.string.contact_key), "096900338822")));
-        infoList.add(new Info("Boat Length",  pref.getString(res.getString(R.string.length_key), "0")));
-        infoList.add(new Info("Boat Width",  pref.getString(res.getString(R.string.width_key), "0")));
+        infoList.add(new Info("Boat Length", pref.getString(res.getString(R.string.length_key), "0")));
+        infoList.add(new Info("Boat Width", pref.getString(res.getString(R.string.width_key), "0")));
         infoList.add(new Info("Boat Height", pref.getString(res.getString(R.string.height_key), "0")));
 
         infoList.add(new Info("", "Timer Information"));
@@ -89,10 +69,24 @@ public class InfoActivity extends AppCompatActivity {
         infoList.add(new Info("Server Posting Interval", pref.getString(res.getString(R.string.post_key), "0")));
 
         infoList.add(new Info("", "Alert Information"));
-        infoList.add(new Info("Pitch Angle Alert",  pref.getString(res.getString(R.string.pitch_key), "0")));
+        infoList.add(new Info("Pitch Angle Alert", pref.getString(res.getString(R.string.pitch_key), "0")));
         infoList.add(new Info("Roll Angle Alert", pref.getString(res.getString(R.string.roll_key), "0")));
+
+        return infoList;
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    /**
+     * Binds the list to the view for display.
+     *
+     * @param list - list to be displayed
+     * @param view - ListView where the list will be displayed
+     */
     private void bindAdapter(ArrayList<Info> list, @NonNull ListView view) {
         ArrayAdapter<Info> adapter = new ArrayAdapter<Info>(getApplicationContext(),
                 android.R.layout.simple_list_item_2, android.R.id.text1, list) {
@@ -110,8 +104,7 @@ public class InfoActivity extends AppCompatActivity {
                         text2.setTextSize(18);
                         text2.setTypeface(null, Typeface.BOLD);
                         text2.setTextColor(Color.rgb(1, 135, 134));
-                    }
-                    else {
+                    } else {
                         text2.setText(info.getDescription());
                         text1.setText(info.getValue());
 
@@ -131,5 +124,23 @@ public class InfoActivity extends AppCompatActivity {
             }
         };
         view.setAdapter(adapter);
+    }
+
+    static class Info {
+        private final String description;
+        private final String value;
+
+        public Info(String description, String value) {
+            this.description = description;
+            this.value = value;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }

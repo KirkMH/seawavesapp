@@ -2,6 +2,9 @@ package com.asu.seawavesapp.data;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * The Setting class represents the setting retrieved from the server.
+ */
 public class Setting {
     @SerializedName("critical_pitch_angle") public Double criticalPitchAngle;
     @SerializedName("critical_roll_angle") public Double criticalRollAngle;

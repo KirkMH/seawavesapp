@@ -6,9 +6,15 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.widget.TextView;
 
+import androidx.appcompat.content.res.AppCompatResources;
+
 import com.asu.seawavesapp.R;
 import com.asu.seawavesapp.data.Reading;
 
+/**
+ * Alert class is used to check for alerts, displaying appropriate color,
+ * and playing appropriate sound.
+ */
 public class Alert {
     // alert levels
     public static final int NORMAL = 0;
@@ -16,23 +22,35 @@ public class Alert {
     public static final int ORANGE = 2;
     public static final int RED = 3;
 
-    private Activity context;
+    private final Activity context;
+    private final String boatName;
     private MediaPlayer mediaPlayer;
-    private String boatName;
+    private int status = Alert.NORMAL;
+    private int lastPlayed = 0;
     private static float pitchAngleAlert = 0f;
     private static float rollAngleAlert = 0f;
-    private int status = Alert.NORMAL;
-    private TextView tvStatus;
-    private int lastPlayed = 0;
 
+    /**
+     * Creates an instance of the Alert class.
+     *
+     * @param context         - application context
+     * @param boatName        - boat's name
+     * @param pitchAngleAlert - pitch angle's critical level
+     * @param rollAngleAlert  - roll angle's critical level
+     */
     public Alert(Activity context, String boatName, float pitchAngleAlert, float rollAngleAlert) {
         this.context = context;
         this.boatName = boatName;
-        this.pitchAngleAlert = pitchAngleAlert;
-        this.rollAngleAlert = rollAngleAlert;
-        tvStatus = context.findViewById(R.id.tvStatus);
+        Alert.pitchAngleAlert = pitchAngleAlert;
+        Alert.rollAngleAlert = rollAngleAlert;
     }
 
+    /**
+     * Checks the reading whether it will have an alert or not.
+     *
+     * @param reading - the reading to check
+     * @return alert level
+     */
     public static int checkReadingForAlert(Reading reading) {
         if (reading == null || reading.getPitchAngle() == null) return Alert.NORMAL;
 
@@ -50,51 +68,76 @@ public class Alert {
         // 20% before critical
         else if (pitch >= (pitchAngleAlert * .8) || roll >= (rollAngleAlert * 0.8)) {
             rStatus = Alert.YELLOW;
-        }
-        else {
+        } else {
             rStatus = Alert.NORMAL;
         }
 
         return rStatus;
     }
 
+    /**
+     * Checks the reading whether it will have an alert or not.
+     *
+     * @param reading - the reading to check
+     * @return alert level
+     */
     public int check(Reading reading) {
         status = checkReadingForAlert(reading);
         return status;
     }
 
-    public void render() {
+    /**
+     * Renders the alert by setting the status' text and the background color,
+     * and plays the sound alarm.
+     */
+    public void render(TextView tvStatus) {
         tvStatus.setText(getStatus());
         tvStatus.setBackground(getColor());
+        // set an appropriate text color
         if (status == Alert.YELLOW) {
             tvStatus.setTextColor(Color.DKGRAY);
         } else {
             tvStatus.setTextColor(Color.WHITE);
         }
 
+        // play/stop the sound alert
         int toPlay = getSoundId();
+        // when the player is running, and either there should be no alert
+        // or it gets a new type of alert, stop the player
         if (mediaPlayer != null && (toPlay == 0 || lastPlayed != toPlay)) {
             stopAlert();
         }
+        // if there should be an alert, play the sound
         if (mediaPlayer == null && toPlay != 0) {
             playAlert(toPlay);
         }
+        // keep track of the last status
         lastPlayed = toPlay;
     }
 
+    /**
+     * Returns the background for the status depending on the alert level.
+     *
+     * @return background color
+     */
     private Drawable getColor() {
         switch (status) {
             case Alert.YELLOW:
-                return context.getDrawable(R.drawable.rounded_rect_y);
+                return AppCompatResources.getDrawable(context, R.drawable.rounded_rect_y);
             case Alert.ORANGE:
-                return context.getDrawable(R.drawable.rounded_rect_o);
+                return AppCompatResources.getDrawable(context, R.drawable.rounded_rect_o);
             case Alert.RED:
-                return context.getDrawable(R.drawable.rounded_rect_r);
+                return AppCompatResources.getDrawable(context, R.drawable.rounded_rect_r);
             default:
-                return context.getDrawable(R.drawable.rounded_rect);
+                return AppCompatResources.getDrawable(context, R.drawable.rounded_rect);
         }
     }
 
+    /**
+     * Returns the string representation of the status.
+     *
+     * @return - status
+     */
     private String getStatus() {
         switch (status) {
             case Alert.YELLOW:
@@ -108,10 +151,12 @@ public class Alert {
         }
     }
 
-    public String getMessage() {
-        return getMessage("");
-    }
-
+    /**
+     * Returns a message status of the boat.
+     *
+     * @param extraInfo - any other information to be added to the message
+     * @return message status
+     */
     public String getMessage(String extraInfo) {
         String message = "";
         if (status != Alert.NORMAL) {
@@ -120,6 +165,11 @@ public class Alert {
         return message;
     }
 
+    /**
+     * Returns the sound to be played based on the status.
+     *
+     * @return sound resource
+     */
     private int getSoundId() {
         switch (status) {
             case Alert.YELLOW:
@@ -133,6 +183,11 @@ public class Alert {
         }
     }
 
+    /**
+     * Plays the specified sound resource.
+     *
+     * @param sound - sound resource
+     */
     public void playAlert(int sound) {
         if (sound == 0) return;
 
@@ -143,6 +198,9 @@ public class Alert {
         }
     }
 
+    /**
+     * Stops playing the sound.
+     */
     public void stopAlert() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();

@@ -1,17 +1,15 @@
 package com.asu.seawavesapp;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.asu.seawavesapp.api.ApiClient;
 import com.asu.seawavesapp.api.RestApi;
@@ -37,21 +35,19 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // disable night mode to ensure that texts are readable
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         restApi = ApiClient.getApi();
         initUi();
 
-        btRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Boat boat = getData();
-                if (boat != null) {
-                    processData(boat);
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), "Please fill-in all the fields.", Toast.LENGTH_SHORT).show();
-                }
+        btRegister.setOnClickListener(view -> {
+            // ensure that required fields are filled in
+            Boat boat = getData();
+            if (boat != null) {
+                processData(boat);
+            } else {
+                Toast.makeText(getApplicationContext(), "Please fill-in all the fields.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -60,19 +56,14 @@ public class RegisterActivity extends AppCompatActivity {
         builder.setTitle("Disclaimer");
         builder.setMessage(
                 "This SEAWAVeS Mobile Application is part of the project “Design and Development of a Low-Cost Mobile Data Acquisition System for Small Crafts” of the Aklan State University - College of Industrial Technology, DOST VI, and DOST-PCIEERD. The use of this project, and any other form of documents as a reference is only permitted after consulting the creators.\n\n" +
-                "We are committed to protect and secure personal information and uphold the rights of our data subjects (i.e. employees, partners, and other stakeholders) in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173), and its Implementing Rules and Regulation.\n\n" +
-                "We observe utmost compliance to the strictest standards of security and confidentiality with respect to all personal information and data submitted by our data subjects."
+                        "We are committed to protect and secure personal information and uphold the rights of our data subjects (i.e. employees, partners, and other stakeholders) in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173), and its Implementing Rules and Regulation.\n\n" +
+                        "We observe utmost compliance to the strictest standards of security and confidentiality with respect to all personal information and data submitted by our data subjects."
         );
         builder.setIcon(R.drawable.information);
         // Accept (Positive) action
         builder.setPositiveButton("Accept", null);
         // Close (Negative) action
-        builder.setNegativeButton("Close Application", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                finish();
-            }
-        });
+        builder.setNegativeButton("Close Application", (dialogInterface, i) -> finish());
         // Create the AlertDialog
         AlertDialog alertDialog = builder.create();
         // set other dialog properties
@@ -81,14 +72,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         // setup the Accept action
         Button posBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        posBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.cancel();
-            }
-        });
+        posBtn.setOnClickListener(view -> alertDialog.cancel());
     }
 
+    /**
+     * Initializes the references to the views.
+     */
     private void initUi() {
         etName = findViewById(R.id.regName);
         etOwner = findViewById(R.id.regOwner);
@@ -99,6 +88,12 @@ public class RegisterActivity extends AppCompatActivity {
         btRegister = findViewById(R.id.btRegister);
     }
 
+    /**
+     * Retrieves the data filled in by the user and returns an instance of the <code>Boat</code> class.
+     * However, when there is an unfilled field, it will return <code>null</code>.
+     *
+     * @return an instance of the <code>Boat</code> class when all fields are filled; <code>null</code> otherwise
+     */
     private Boat getData() {
         String name = etName.getText().toString();
         String owner = etOwner.getText().toString();
@@ -110,17 +105,22 @@ public class RegisterActivity extends AppCompatActivity {
         return (name.isEmpty() || owner.isEmpty() || ownerContact.isEmpty() || length.isEmpty() || width.isEmpty() || height.isEmpty()) ?
                 null :
                 new Boat(
-                    null,
-                    name,
-                    owner,
-                    ownerContact,
-                    Double.parseDouble(length),
-                    Double.parseDouble(width),
-                    Double.parseDouble(height),
-                    null, true
-        );
+                        null,
+                        name,
+                        owner,
+                        ownerContact,
+                        Double.parseDouble(length),
+                        Double.parseDouble(width),
+                        Double.parseDouble(height),
+                        null, true
+                );
     }
 
+    /**
+     * Saves the details of the boat to the <code>SharedPreferences</code>.
+     *
+     * @param boat - record to be saved
+     */
     private void saveBoatDetails(Boat boat) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         pref.edit()
@@ -134,6 +134,11 @@ public class RegisterActivity extends AppCompatActivity {
                 .apply();
     }
 
+    /**
+     * Saves the boat data into the server. When saving is successful, it will also launch the MainActivity.
+     *
+     * @param boat - record to be saved
+     */
     private void processData(Boat boat) {
         Call<Boat> call = restApi.addBoat(boat);
         btRegister.setEnabled(false);

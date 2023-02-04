@@ -20,13 +20,14 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
-            android:gravity="left"
+            android:gravity="start"
             app:theme="@style/Theme.SEAWAVeSApp.PopupOverlay" >
 
             <ImageView
                 android:id="@+id/tv_header_title"
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/app_name"
                 android:src="@drawable/seawaves_icon"/>
 
             <TextView
@@ -34,7 +35,8 @@
                 android:layout_height="match_parent"
                 android:textColor="@color/dark_gray"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dp"
+                android:paddingStart="@dimen/bottom_padding"
+                android:paddingEnd="@dimen/bottom_padding"
                 android:textSize="24sp"
                 android:text="@string/title_activity_setup" />
 
@@ -81,7 +83,7 @@
                 android:layout_margin="@dimen/inner_rect_margin"
                 android:background="@drawable/line_bottom"
                 android:padding="@dimen/setup_margin"
-                android:text="0.00"
+                android:text="@string/zero"
                 android:textColor="@color/dark_gray"
                 android:textSize="28sp" />
 
@@ -113,7 +115,7 @@
                 android:layout_margin="@dimen/inner_rect_margin"
                 android:background="@drawable/line_bottom"
                 android:padding="@dimen/setup_margin"
-                android:text="0.00"
+                android:text="@string/zero"
                 android:textColor="@color/dark_gray"
                 android:textSize="28sp" />
 
@@ -200,6 +202,7 @@
             android:layout_height="0dp"
             android:layout_weight="2"
             android:gravity="bottom"
+            style="?android:attr/buttonBarButtonStyle"
             android:orientation="horizontal">
 
             <Button
@@ -209,6 +212,7 @@
                 android:layout_weight="1"
                 android:layout_margin="5dp"
                 android:backgroundTint="@color/dark_blue"
+                style="?android:attr/buttonBarButtonStyle"
                 android:text="@string/cal_start"
                 android:textColor="@color/white" />
 
@@ -218,6 +222,7 @@
                 android:layout_height="60dp"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
+                style="?android:attr/buttonBarButtonStyle"
                 android:backgroundTint="@color/dark_gray"
                 android:text="@string/cal_close"
                 android:textColor="@color/white" />
