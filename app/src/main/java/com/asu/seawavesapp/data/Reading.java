@@ -324,14 +324,12 @@ public class Reading {
     }
 
     /**
-     * Will only consider valid if the heading angle and the latitude are available
-     * (assumes the longitude is also if latitude is available)
+     * Will only consider valid if the heading angle is available.
      *
      * @return <code>true</code> if the reading is valid; <code>false</code> otherwise
      */
     public boolean isValid() {
-        return ((headingAngle != null && headingAngle > 0) &&
-                (latitude != null && latitude > 0));
+        return (headingAngle != null);
     }
 
     @NonNull

@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.asu.seawavesapp.databinding.ActivitySetupBinding;
 import com.asu.seawavesapp.util.DecimalFormatter;
+import com.asu.seawavesapp.util.Utility;
 
 public class SetupActivity extends AppCompatActivity implements SensorEventListener {
     private final Handler handler = new Handler();
@@ -66,6 +67,9 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         btClose.setOnClickListener(view -> finishAndRemoveTask());
 
         checkPermissions();
+
+        // make sure that the Location Service is on
+        Utility.checkLocationService(getApplicationContext());
     }
 
     @Override

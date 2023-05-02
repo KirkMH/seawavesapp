@@ -1,5 +1,9 @@
 package com.asu.seawavesapp.util;
 
+import android.content.Context;
+import android.location.LocationManager;
+import android.widget.Toast;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,5 +61,23 @@ public class Utility {
         } catch (ParseException e) {
             return null;
         }
+    }
+
+
+    /**
+     * Checks whether the phone's location service is enabled or not.
+     * When not enabled, a toast will be displayed to inform the user.
+     * @param context   The context.
+     * @return          True if enabled; false otherwise.
+     */
+    public static boolean checkLocationService(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        Boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        Boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        if (!isGPSEnabled && !isNetworkEnabled) {
+            Toast.makeText(context, "Please turn on the Location Service of your phone.",
+                    Toast.LENGTH_LONG).show();
+        }
+        return (isGPSEnabled && isNetworkEnabled);
     }
 }

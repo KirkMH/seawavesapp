@@ -1,6 +1,7 @@
 package com.asu.seawavesapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -9,6 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -265,6 +267,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * Initializes the location services using FusedLocationClient
      */
     private void initLocationServices() {
+        // make sure that the location service is enabled
+        Utility.checkLocationService(getApplicationContext());
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         mLocationCallback = new LocationCallback() {
@@ -612,7 +617,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (reading == null)
             reading = sampler.getReadingForPost();
 
-        if (reading.isValid()) return;
+        if (!reading.isValid()) {
+            Log.v("qts.set", "Invalid: " + reading);
+            return;
+        }
         savingQueue.add(reading);
         saveReading(reading);
         // checking for frequency
