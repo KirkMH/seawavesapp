@@ -64,7 +64,10 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         });
 
         Button btClose = findViewById(R.id.btClose);
-        btClose.setOnClickListener(view -> finishAndRemoveTask());
+        btClose.setOnClickListener(view -> {
+            finishAndRemoveTask();
+            System.exit(0);
+        });
 
         checkPermissions();
 

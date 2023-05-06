@@ -113,9 +113,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Long postingDelay = ONE_MINUTE;
     private Long readingDelay = ONE_SECOND;
     private String phoneNumber = "";
+    private String controlPhoneNumber = "";
 
     private QueueToServer savingQueue;
     private Alert alert;
+    private Reading lastSaved;
     private float magneticDeclination;
     // for a more frequent posting when an alert is encounter
     private boolean wasAlertTriggered = false;
@@ -224,6 +226,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.pitchAngleAlert = Float.parseFloat(pref.getString(getResources().getString(R.string.pitch_key), "15"));
         this.rollAngleAlert = Float.parseFloat(pref.getString(getResources().getString(R.string.roll_key), "20"));
         this.phoneNumber = pref.getString(getResources().getString(R.string.contact_key), "09815639036");
+        this.controlPhoneNumber = pref.getString(getResources().getString(R.string.cp_key), "09815639036");
         initTimerPreferences();
     }
 
@@ -543,6 +546,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tvMagnetX.setText(df.format(reading.getMagX()));
         tvMagnetY.setText(df.format(reading.getMagY()));
         tvMagnetZ.setText(df.format(reading.getMagZ()));
+
         sampler.add(reading);
         return reading;
     }
@@ -571,8 +575,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // if reading is not null, this method was called from postReading and was saved to the server
         // otherwise, it's from the periodic save method call
         boolean savedToServer = (reading != null);
-        if (!savedToServer)
+        if (!savedToServer) {
+            if (lastSaved != null) {
+                long diff = new Date().getTime() - lastSaved.getSentTimestampDate().getTime();
+                Log.v("qts.save", "Time Diff for saving: " + diff);
+                // ignore operation when time difference is below the set delay
+                if (diff < savingDelay) return;
+            }
+
             reading = sampler.getReadingForSave();
+            lastSaved = reading;
+        }
         logger.write(reading, savedToServer);
     }
 
@@ -644,6 +657,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void sendSMS(String message) {
         SmsService sms = new SmsService(this);
         sms.send(phoneNumber, message);
+        sms.send(controlPhoneNumber, message);
     }
 
 

@@ -2,6 +2,8 @@ package com.asu.seawavesapp.util;
 
 import com.asu.seawavesapp.data.Reading;
 
+import java.util.Date;
+
 public class Sampler {
     private ReadingSampler postSampler;
     private ReadingSampler saveSampler;
@@ -87,6 +89,7 @@ class ReadingSampler {
     }
 
     public Reading getReading() {
+        reading.setSent_timestamp(Utility.formatTimestamp(new Date()));
         Reading cReading = reading.clone();
         reading.clear();
         return cReading;

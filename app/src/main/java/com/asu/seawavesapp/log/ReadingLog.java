@@ -32,7 +32,7 @@ public class ReadingLog extends Logger {
      */
     public void write(Reading reading, boolean server) {
         // ignore invalid readings
-        if (!reading.isValid()) return;
+        if (!reading.isValid() || reading.getSentTimestampDate() == null) return;
 
         // write the heading
         if (isFirstWrite()) {
