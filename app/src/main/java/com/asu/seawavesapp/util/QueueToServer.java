@@ -8,6 +8,7 @@ import com.asu.seawavesapp.data.Reading;
 import com.asu.seawavesapp.log.ErrorLog;
 import com.asu.seawavesapp.log.ReadingLog;
 
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executors;
@@ -27,7 +28,7 @@ import retrofit2.Response;
  * tries again after one second.
  */
 public class QueueToServer {
-    private final Queue<Reading> queue;
+    private final Deque<Reading> queue;
     private final RestApi restApi;
 
     private final ReadingLog logger;
@@ -35,6 +36,7 @@ public class QueueToServer {
     private Long postingDelay; // expected time difference between posts (in milliseconds)
 
     public boolean killed;
+    private boolean isOnline;
     private Reading lastAdded;
     private Reading forSending = null;
     private ScheduledFuture<?> future;
@@ -50,6 +52,7 @@ public class QueueToServer {
         restApi = ApiClient.getApi();
         queue = new LinkedList<>();
         killed = false;
+        isOnline = true;
         this.logger = logger;
         this.errorLog = errorLog;
         this.postingDelay = postingDelay;
@@ -107,29 +110,40 @@ public class QueueToServer {
      */
     private synchronized void saveToServer(Reading reading) {
         Call<Reading> call = restApi.addReading(reading);
-        Log.v("qts.save", reading.toString());
+        Log.v("qts.saveToServer", "Sending " + reading);
+        forSending = null;
 
-        call.enqueue(new Callback<Reading>() {
-            @Override
-            public void onResponse(Call<Reading> call, Response<Reading> response) {
-                Reading responseReading = response.body();
-                if (responseReading ==  null || responseReading.getFormattedTimestamp() == null) {
-                    errorLog.write("Posting of a reading to server returned null.");
+        try {
+            call.enqueue(new Callback<Reading>() {
+                @Override
+                public void onResponse(Call<Reading> call, Response<Reading> response) {
+                    Log.v("response", "online");
+                    setOnline(true);
+                    Reading responseReading = response.body();
+                    if (responseReading == null || responseReading.getFormattedTimestamp() == null) {
+                        errorLog.write("Posting of a reading to server returned null.");
+                    } else {
+                        Log.v("qts.saveToServer", "Received " + responseReading);
+                        logger.write(responseReading, true);
+                        Log.v("qts.save", "Sent " + reading);
+                    }
                 }
-                else {
-                    logger.write(responseReading, true);
-                    forSending = null;
-                    Log.v("qts.save", "Sent " + reading);
+
+                @Override
+                public void onFailure(Call<Reading> call, Throwable t) {
+                    setOnline(false);
+                    Log.v("response", "offline");
+                    errorLog.write(t.getLocalizedMessage());
+                    call.cancel();
+                    queue.addFirst(reading);
                 }
-            }
-
-            @Override
-            public void onFailure(Call<Reading> call, Throwable t) {
-                errorLog.write(t.getLocalizedMessage());
-                call.cancel();
-            }
-        });
-
+            });
+        } catch (Exception e) {
+            Log.v("qts.save", "Error: " + e.getLocalizedMessage());
+            setOnline(false);
+            call.cancel();
+            queue.addFirst(reading);
+        }
     }
 
     /**
@@ -138,12 +152,22 @@ public class QueueToServer {
     public void schedule() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         future = executor.scheduleAtFixedRate(() -> {
+            Log.v("qts", "scheduled");
             if (isKilled())
                 future.cancel(false);
             else if (!queue.isEmpty() && forSending == null) {
                 forSending = queue.remove();
+                Log.v("qts", "Trying: " + forSending);
                 saveToServer(forSending);
             }
         }, 0, 1000, TimeUnit.MILLISECONDS);
+    }
+
+    private void setOnline(boolean online) {
+        isOnline = online;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
     }
 }

@@ -74,10 +74,6 @@ public class Utility {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         Boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        if (!isGPSEnabled && !isNetworkEnabled) {
-            Toast.makeText(context, "Please turn on the Location Service of your phone.",
-                    Toast.LENGTH_LONG).show();
-        }
         return (isGPSEnabled && isNetworkEnabled);
     }
 }

@@ -1,7 +1,6 @@
 package com.asu.seawavesapp;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -10,12 +9,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView tvLatitude;
     private TextView tvLongitude;
     private TextView tvAltitude;
+    private TextView tvResponse;
     private Button btStop;
 
     private final int REQUEST_LOCATION_PERMISSION = 100;
@@ -122,6 +122,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // for a more frequent posting when an alert is encounter
     private boolean wasAlertTriggered = false;
     private int noAlertCounter = 0;
+    private boolean isLocationRetrieved = false;
+    private boolean isResponseStatusVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         initPreferences();
         initUi();
         initLocationServices();
+        tvResponse.setVisibility(View.INVISIBLE);
         boolean sensorInit = initSensors();
 
         sampler = new Sampler();
@@ -204,8 +207,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // no SD card or cannot write to it; store to internal storage
             folder = new File(getApplicationContext().getFilesDir(), "logs");
             if (!folder.exists()) folder.mkdir();
-//            Toast.makeText(getApplicationContext(), "Cannot write to SD card. Using the internal memory.",
-//                    Toast.LENGTH_SHORT).show();
         }
 
         File logFile = new File(folder, filename);
@@ -263,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tvLatitude = findViewById(R.id.tvLat);
         tvLongitude = findViewById(R.id.tvLong);
         tvAltitude = findViewById(R.id.tvAlt);
+        tvResponse = findViewById(R.id.tvResponse);
         btStop = findViewById(R.id.btStop);
     }
 
@@ -290,8 +292,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         tvAltitude.setText(df.format((float) mLastLocation.getAltitude()));
                         magneticDeclination = CompassHelper.calculateMagneticDeclination(
                                 mLastLocation.getLatitude(), mLastLocation.getLongitude(), mLastLocation.getAltitude());
-                        isLocationRetrieved = true;
                     }
+                    isLocationRetrieved = true;
                 } else {
                     // if no location is retrieved, set to zero
                     tvLatitude.setText(R.string.zero);
@@ -417,6 +419,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     if (isRunning)
                         handler.postDelayed(this, ONE_SECOND);
                     displayDateTime();
+                    displayResponseStatus();
                 } catch (Exception e) {
                     criticalErrorHandler(e);
                 }
@@ -430,7 +433,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         handler.postDelayed(this, readingDelay);
                     Reading reading = displayReadings();
                     checkAlert(reading);
-
                 } catch (Exception e) {
                     criticalErrorHandler(e);
                 }
@@ -635,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return;
         }
         savingQueue.add(reading);
-        saveReading(reading);
+//        saveReading(reading);         // this could be the cause of that null in timestamp
         // checking for frequency
         if (wasAlertTriggered) {
             if (Alert.checkReadingForAlert(reading) != Alert.NORMAL) {
@@ -670,6 +672,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sendSMS(smsAlert.getMessage("Location is at " +
                     mLastLocation.getLongitude() + " deg. longitude, " +
                     mLastLocation.getLatitude() + " deg. latitude."));
+            // save to server also
+            postReading(reading);
         }
     }
 
@@ -801,7 +805,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     // https://talesofcode.com/developing-compass-android-application/
-    private boolean isLocationRetrieved = false;
     private void updateHeading() {
         float heading = CompassHelper.calculateHeading(accelerometerReading, magnetometerReading);
         heading = CompassHelper.convertRadtoDeg(heading);
@@ -823,5 +826,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // ignore this time
+    }
+
+    private void displayResponseStatus() {
+        String msg = "";
+
+        boolean isLocationActive = Utility.checkLocationService(getApplicationContext());
+        boolean isOnline = savingQueue.isOnline();
+
+        Log.v("response", "New online status: " + isOnline);
+        if (!isOnline && !isLocationActive)
+            msg = "Offline and location is off.";
+        else if (!isOnline)
+            msg = "Offline";
+        else if (!isLocationActive)
+            msg = "Location is off.";
+
+        if (msg.isEmpty() && isResponseStatusVisible) {
+            tvResponse.setVisibility(View.INVISIBLE);
+            isResponseStatusVisible = false;
+        }
+        else if (!msg.isEmpty() && !isResponseStatusVisible) {
+            tvResponse.setVisibility(View.VISIBLE);
+            tvResponse.setText(msg);
+            isResponseStatusVisible = true;
+        }
+        else if (!msg.isEmpty() && isResponseStatusVisible) {
+            tvResponse.setText(msg);
+            isResponseStatusVisible = true;
+        }
+
+        Log.v("response", isResponseStatusVisible + " " + msg);
     }
 }

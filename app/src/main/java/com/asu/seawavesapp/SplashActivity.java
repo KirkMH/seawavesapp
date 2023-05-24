@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.asu.seawavesapp.api.ApiClient;
 import com.asu.seawavesapp.api.RestApi;
+import com.asu.seawavesapp.data.Boat;
 import com.asu.seawavesapp.data.Setting;
 import com.asu.seawavesapp.databinding.ActivitySplashBinding;
 import com.google.android.material.snackbar.Snackbar;
@@ -28,6 +29,8 @@ import retrofit2.Response;
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
     private RestApi restApi;
+    private Integer boatId = null;
+    private Float critical = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,7 @@ public class SplashActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
+        retrieveSavedPreferences();
         restApi = ApiClient.getApi();
         getSetting();
     }
@@ -50,29 +54,30 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     /**
+     * Retrieves the boat ID and roll angle critical level from saved preferences.
+     */
+    private void retrieveSavedPreferences() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        try {
+            this.boatId = Integer.parseInt(pref.getString(getResources().getString(R.string.id_key), ""));
+            this.critical = Float.parseFloat(pref.getString(getResources().getString(R.string.roll_key), "0"));
+        } catch (Exception e) { }
+    }
+
+    /**
      * Checks whether the device has been registered to the server or not.
      * If not yet registered, the registration form will be opened.
      * If already registered, the setup activity will be opened.
      */
     private void verifySavedPreference() {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        try {
-            String id = pref.getString(getResources().getString(R.string.id_key), "");
-            float critical = Float.parseFloat(pref.getString(getResources().getString(R.string.roll_key), "0"));
-
-            finish();
-
-            if (critical == 0f)
-                processErrorResponse(null, true);
-            else if (id.isEmpty())
-                registerUser();
-            else {
-                // launch SetupActivity
-                startActivity(new Intent(getApplicationContext(), SetupActivity.class));
-                finish();
-            }
-        } catch (Exception e) {
+        if (critical == null)
+            processErrorResponse(null, true);
+        else if (this.boatId == null)
             registerUser();
+        else {
+            // launch SetupActivity
+            startActivity(new Intent(getApplicationContext(), SetupActivity.class));
+            finish();
         }
     }
 
@@ -88,6 +93,7 @@ public class SplashActivity extends AppCompatActivity {
      * Retrieves settings from the server and stores it using shared preferences.
      */
     private void getSetting() {
+        // for the general settings
         Call<Setting> call = restApi.getSettings();
         call.enqueue(new Callback<Setting>() {
             @Override
@@ -113,6 +119,32 @@ public class SplashActivity extends AppCompatActivity {
                 processErrorResponse(call, false);
             }
         });
+
+        // for the boat details
+        Call<Boat> boatCall = restApi.getBoatDetail(boatId);
+        boatCall.enqueue(new Callback<Boat>() {
+            @Override
+            public void onResponse(Call<Boat> call, Response<Boat> response) {
+                Boat rBoat = response.body();
+                if (rBoat != null) {
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    pref.edit()
+                            .putString(getResources().getString(R.string.boat_key), rBoat.name)
+                            .putString(getResources().getString(R.string.owner_key), rBoat.owner)
+                            .putString(getResources().getString(R.string.contact_key), rBoat.ownerContact)
+                            .putString(getResources().getString(R.string.length_key), rBoat.length.toString())
+                            .putString(getResources().getString(R.string.width_key), rBoat.width.toString())
+                            .putString(getResources().getString(R.string.height_key), rBoat.height.toString())
+                            .apply();
+                } else
+                    processErrorResponse(boatCall, false);
+            }
+
+            @Override
+            public void onFailure(Call<Boat> call, Throwable t) {
+                processErrorResponse(call, false);
+            }
+        });
     }
 
     /**
@@ -122,7 +154,7 @@ public class SplashActivity extends AppCompatActivity {
      * @param call     - the call that was tried to be executed
      * @param required - when <code>true</code>, displays a SnackBar; <code>false</code> displays a Toast
      */
-    private void processErrorResponse(Call<Setting> call, boolean required) {
+    private void processErrorResponse(Call call, boolean required) {
         if (required) {
             LinearLayout llSplash = findViewById(R.id.llSplash);
             Snackbar.make(llSplash, "Cannot retrieve settings from the server.", Snackbar.LENGTH_INDEFINITE)

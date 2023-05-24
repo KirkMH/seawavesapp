@@ -34,6 +34,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
     private final long readingDelay = 250; // milliseconds
     private float pitchAngle = 0f;
     private float rollAngle = 0f;
+    private boolean hasStarted = false;
 
     // for the permissions
     private final int REQUEST_CODE = 100;
@@ -60,6 +61,8 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
             intent.putExtra("pitchAngle", pitchAngle);
             intent.putExtra("rollAngle", rollAngle);
             startActivity(intent);
+            handler.removeCallbacksAndMessages(null);
+            hasStarted = true;
             finish();
         });
 
@@ -72,7 +75,10 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         checkPermissions();
 
         // make sure that the Location Service is on
-        Utility.checkLocationService(getApplicationContext());
+        boolean isActiveLocationService = Utility.checkLocationService(getApplicationContext());
+        if (!isActiveLocationService)
+            Toast.makeText(getApplicationContext(), "Please turn on the Location Service.",
+                    Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -82,6 +88,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         if (sensorInit) {
             startTimer();
         }
+        hasStarted = false;
     }
 
     @Override
@@ -231,6 +238,8 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        if (hasStarted) return;
+
         if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             if (accuracy < SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM) {
                 // when accuracy is low, calibration is required
