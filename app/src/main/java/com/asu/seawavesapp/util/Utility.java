@@ -1,8 +1,18 @@
 package com.asu.seawavesapp.util;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellSignalStrengthGsm;
+import android.telephony.TelephonyManager;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -68,12 +78,27 @@ public class Utility {
      * Checks whether the phone's location service is enabled or not.
      * When not enabled, a toast will be displayed to inform the user.
      * @param context   The context.
-     * @return          True if enabled; false otherwise.
+     * @return True if enabled; false otherwise.
      */
     public static boolean checkLocationService(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         Boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         return (isGPSEnabled && isNetworkEnabled);
+    }
+
+
+    /**
+     * Returns the signal strength in a range of 0 to 4; 0 means very poor and 4 means very good.
+     * @param context
+     * @return
+     */
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    public static int getSignalStrength(Context context) {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        return telephonyManager.getSignalStrength().getLevel();
+//        @SuppressLint("MissingPermission") CellInfoGsm cellInfoGsm = (CellInfoGsm) telephonyManager.getAllCellInfo().get(0);
+//        CellSignalStrengthGsm cellSignalStrengthGsm = cellInfoGsm.getCellSignalStrength();
+//        return cellSignalStrengthGsm.getLevel();
     }
 }

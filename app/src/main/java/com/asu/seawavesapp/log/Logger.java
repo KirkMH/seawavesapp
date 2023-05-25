@@ -6,8 +6,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -102,5 +104,24 @@ public class Logger {
 //        if (!isError())
         Toast.makeText(context, "Log Error: " + message, Toast.LENGTH_LONG).show();
         isError = true;
+    }
+
+    public String readAll() {
+        StringBuilder text = new StringBuilder();
+        // read file
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(logFile));
+            //Read text from file
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+                text.append('\n');
+            }
+            br.close();
+
+        } catch (IOException e) {
+            displayError(e.getLocalizedMessage());
+        }
+        return text.toString();
     }
 }

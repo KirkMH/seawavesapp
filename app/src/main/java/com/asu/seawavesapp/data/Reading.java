@@ -16,6 +16,8 @@ public class Reading {
     Long id;
     @SerializedName("boat")
     Long boatId;
+    @SerializedName("voyage")
+    Long voyageId;
     @SerializedName("heading_angle")
     Float headingAngle;
     @SerializedName("pitch_angle")
@@ -46,6 +48,8 @@ public class Reading {
     Float longitude;
     @SerializedName("altitude")
     Float altitude;
+    @SerializedName("signalStrength")
+    Integer signalStrength;
     @SerializedName("timestamp")
     Date timestamp;
     @SerializedName("sent_timestamp")
@@ -79,11 +83,13 @@ public class Reading {
      * @param altitude     - Altitude, in meters
      * @param timestamp    - Timestamp of the reading
      * @param sent         - Date/time when the reading is sent to the server
+     * @param voyageId     - Id of this voyage
+     * @param signalStrength         - Signal strength level
      */
     public Reading(Long boatId, Float headingAngle, Float pitchAngle, Float rollAngle, Float gyroX,
                    Float gyroY, Float gyroZ, Float accelX, Float accelY, Float accelZ,
                    Float magX, Float magY, Float magZ, Float latitude, Float longitude, Float altitude,
-                   Date timestamp, String sent) {
+                   Date timestamp, String sent, Long voyageId, Integer signalStrength) {
         this.boatId = boatId;
         this.headingAngle = headingAngle;
         this.pitchAngle = pitchAngle;
@@ -102,6 +108,8 @@ public class Reading {
         this.altitude = altitude;
         this.timestamp = timestamp;
         this.sent_timestamp = sent;
+        this.voyageId = voyageId;
+        this.signalStrength = signalStrength;
     }
 
     /**
@@ -130,6 +138,8 @@ public class Reading {
         rClone.altitude = this.altitude;
         rClone.timestamp = this.timestamp;
         rClone.sent_timestamp = this.sent_timestamp;
+        rClone.voyageId = this.voyageId;
+        rClone.signalStrength = this.signalStrength;
         return rClone;
     }
 
@@ -299,11 +309,28 @@ public class Reading {
         return timestamp == null ? null : Utility.formatTimestampForServer(timestamp);
     }
 
+    public Long getVoyageId() {
+        return voyageId;
+    }
+
+    public void setVoyageId(Long voyageId) {
+        this.voyageId = voyageId;
+    }
+
+    public Integer getSignalStrength() {
+        return signalStrength;
+    }
+
+    public void setSignalStrength(Integer signalStrength) {
+        this.signalStrength = signalStrength;
+    }
+
     /**
      * Clears the values of this reading.
      */
     public void clear() {
         this.boatId = null;
+        this.voyageId = null;
         this.headingAngle = null;
         this.pitchAngle = null;
         this.rollAngle = null;
@@ -319,6 +346,7 @@ public class Reading {
         this.latitude = null;
         this.longitude = null;
         this.altitude = null;
+        this.signalStrength = null;
         this.timestamp = null;
         this.sent_timestamp = null;
     }
@@ -349,6 +377,8 @@ public class Reading {
                 "," + magZ +
                 "," + latitude +
                 "," + longitude +
-                "," + altitude;
+                "," + altitude +
+                "," + voyageId +
+                "," + signalStrength;
     }
 }

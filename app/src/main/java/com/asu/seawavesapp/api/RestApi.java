@@ -9,6 +9,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface RestApi {
 
@@ -19,8 +20,16 @@ public interface RestApi {
     @GET("settings")
     Call<Setting> getSettings();
 
+    @GET("boat/detail")
+    Call<Boat> getBoatDetail(@Query(value = "boatId", encoded = true) int boatId);
+
     @Headers("Content-Type: application/json")
     @POST("record/add")
     Call<Reading> addReading(@Body Reading reading);
 
+    @GET("voyage/start")
+    Call<Long> startVoyage(@Query(value = "boatId", encoded = true) Long boatId);
+
+    @GET("voyage/stop")
+    Call<Long> stopVoyage(@Query(value = "voyagePk", encoded = true) Long voyagePk);
 }

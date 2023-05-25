@@ -8,6 +8,9 @@ public class Sampler {
     private ReadingSampler postSampler;
     private ReadingSampler saveSampler;
     private ReadingSampler smsSampler;
+    private float maxPitch = Float.MIN_VALUE;
+    private float maxRoll = Float.MIN_VALUE;
+    private int minSignal = Integer.MAX_VALUE;
 
     public Sampler() {
         postSampler = new ReadingSampler();
@@ -20,6 +23,10 @@ public class Sampler {
             postSampler.add(sample);
             saveSampler.add(sample);
             smsSampler.add(sample);
+            // for maximums
+            if (sample.getPitchAngle() > maxPitch) maxPitch = sample.getPitchAngle();
+            if (sample.getRollAngle() > maxRoll) maxRoll = sample.getRollAngle();
+            if (sample.getSignalStrength() < minSignal) minSignal = sample.getSignalStrength();
         }
     }
 
@@ -33,6 +40,18 @@ public class Sampler {
 
     public Reading getReadingForSMS() {
         return smsSampler.getReading();
+    }
+
+    public float getMaxPitch() {
+        return maxPitch;
+    }
+
+    public float getMaxRoll() {
+        return maxRoll;
+    }
+
+    public int getMinSignal() {
+        return minSignal;
     }
 }
 

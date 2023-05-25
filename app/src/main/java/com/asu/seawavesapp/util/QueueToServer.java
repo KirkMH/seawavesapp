@@ -37,6 +37,7 @@ public class QueueToServer {
 
     public boolean killed;
     private boolean isOnline;
+    private boolean isFinished;
     private Reading lastAdded;
     private Reading forSending = null;
     private ScheduledFuture<?> future;
@@ -106,18 +107,29 @@ public class QueueToServer {
     }
 
     /**
+     * Directly sends the reading to the server, bypassing the queue.
+     * Use carefully and sparingly.
+     * @param reading
+     */
+    public void forceSend(Reading reading) {
+        saveToServer(reading);
+    }
+
+    /**
      * Attempts to post a reading to the server.
      */
     private synchronized void saveToServer(Reading reading) {
         Call<Reading> call = restApi.addReading(reading);
         Log.v("qts.saveToServer", "Sending " + reading);
         forSending = null;
+        isFinished = false;
 
         try {
             call.enqueue(new Callback<Reading>() {
                 @Override
                 public void onResponse(Call<Reading> call, Response<Reading> response) {
                     Log.v("response", "online");
+                    isFinished = true;
                     setOnline(true);
                     Reading responseReading = response.body();
                     if (responseReading == null || responseReading.getFormattedTimestamp() == null) {
@@ -169,5 +181,9 @@ public class QueueToServer {
 
     public boolean isOnline() {
         return isOnline;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
     }
 }

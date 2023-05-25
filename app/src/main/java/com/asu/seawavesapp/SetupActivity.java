@@ -1,7 +1,11 @@
 package com.asu.seawavesapp;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,9 +13,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +30,12 @@ import androidx.core.app.ActivityCompat;
 import com.asu.seawavesapp.databinding.ActivitySetupBinding;
 import com.asu.seawavesapp.util.DecimalFormatter;
 import com.asu.seawavesapp.util.Utility;
+import com.asu.seawavesapp.util.VoyageHelper;
 
 public class SetupActivity extends AppCompatActivity implements SensorEventListener {
     private final Handler handler = new Handler();
     private final DecimalFormatter df = new DecimalFormatter(2);
+    private VoyageHelper voyageHelper;
     private SensorManager manager;
     private TextView tvSetupPitch;
     private TextView tvSetupRoll;
@@ -35,6 +44,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
     private float pitchAngle = 0f;
     private float rollAngle = 0f;
     private boolean hasStarted = false;
+    private Long voyageId;
 
     // for the permissions
     private final int REQUEST_CODE = 100;
@@ -52,6 +62,17 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         tvSetupPitch = findViewById(R.id.tvSetupPitch);
         tvSetupRoll = findViewById(R.id.tvSetupRoll);
 
+        // check for voyageId
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            Long vId = extras.getLong("voyageId", 0);
+            float maxPitch = extras.getFloat("maxPitch", 0f);
+            float maxRoll = extras.getFloat("maxRoll", 0f);
+            int minSignal = extras.getInt("minSignal", 0);
+            if (vId > 0)
+                displaySummary(maxPitch, maxRoll, minSignal);
+        }
+
         // when the Start button is clicked, pass in the current
         // pitch and roll angles (will serve as the initial position) to the MainActivity
         // as this will be used for reading adjustment
@@ -60,10 +81,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.putExtra("pitchAngle", pitchAngle);
             intent.putExtra("rollAngle", rollAngle);
-            startActivity(intent);
-            handler.removeCallbacksAndMessages(null);
-            hasStarted = true;
-            finish();
+            startVoyage(intent);
         });
 
         Button btClose = findViewById(R.id.btClose);
@@ -95,6 +113,28 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
     protected void onPause() {
         super.onPause();
         handler.removeCallbacksAndMessages(null);
+    }
+
+    private void displaySummary(float maxPitch, float maxRoll, int minSignal) {
+        final Dialog dialog = new Dialog(SetupActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.dialog_voyage_summary);
+
+        DecimalFormatter df = new DecimalFormatter(2);
+        TextView pitch = (TextView) dialog.findViewById(R.id.tvSummaryPitch);
+        TextView roll = (TextView) dialog.findViewById(R.id.tvSummaryRoll);
+        TextView signal = (TextView) dialog.findViewById(R.id.tvSummarySignal);
+        pitch.setText(df.format(maxPitch));
+        roll.setText(df.format(maxRoll));
+        String signalMeaning = " - " + (minSignal == 4 ? "Very Good" : minSignal == 3 ? "Good" :
+                minSignal == 2 ? "Average" : minSignal == 1 ? "Poor" : "Very Poor");
+        signal.setText(minSignal + signalMeaning);
+
+        Button ok = dialog.findViewById(R.id.btOK);
+        ok.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     /**
@@ -281,6 +321,46 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void startVoyage(Intent intent) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Long boatId = Long.parseLong(pref.getString(getResources().getString(R.string.id_key), "0"));
+        voyageHelper = new VoyageHelper(boatId);
+
+        ProgressDialog pg = new ProgressDialog(SetupActivity.this);
+        pg.setMessage("Starting new voyage. Please wait...");
+        pg.setTitle("Start Voyage");
+        pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pg.show();
+        pg.setCancelable(false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    voyageHelper.startVoyage();
+                    while (voyageHelper.getVoyagePk() == null) {
+                        Thread.sleep(500);
+                    }
+
+                    voyageId = voyageHelper.getVoyagePk();
+                    Log.v("voyage", "voyageId: " + voyageId);
+                    pg.dismiss();
+
+                    intent.putExtra("voyageId", voyageId);
+                    startActivity(intent);
+                    handler.removeCallbacksAndMessages(null);
+                    hasStarted = true;
+                    finish();
+                } catch (Exception e) {
+                    pg.dismiss();
+                    e.printStackTrace();
+//                    Toast.makeText(getApplicationConte77
+                }
+            }
+        }).start();
+
     }
 
 }

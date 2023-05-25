@@ -9,8 +9,8 @@ android {
         applicationId "com.asu.seawavesapp"
         minSdk 23
         targetSdk 32
-        versionCode 21
-        versionName "1.17"
+        versionCode 22
+        versionName "1.18.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

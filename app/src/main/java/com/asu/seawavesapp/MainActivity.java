@@ -1,6 +1,7 @@
 package com.asu.seawavesapp;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -9,6 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -34,6 +37,7 @@ import com.asu.seawavesapp.util.DecimalFormatter;
 import com.asu.seawavesapp.util.QueueToServer;
 import com.asu.seawavesapp.util.Sampler;
 import com.asu.seawavesapp.util.Utility;
+import com.asu.seawavesapp.util.VoyageHelper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -124,7 +128,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int noAlertCounter = 0;
     private boolean isLocationRetrieved = false;
     private boolean isResponseStatusVisible = false;
+    private Long voyageId;
+    private VoyageHelper voyageHelper;
+    private boolean initialSent = false;
+    private int initSentTries = 0;
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (extras != null) {
             initPitch = extras.getFloat("pitchAngle", 0f);
             initRoll = extras.getFloat("rollAngle", 0f);
+            voyageId = extras.getLong("voyageId", 0);
         }
 
         initLogger();
@@ -145,6 +155,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         initLocationServices();
         tvResponse.setVisibility(View.INVISIBLE);
         boolean sensorInit = initSensors();
+
+        if (voyageId > 0)
+            voyageHelper = new VoyageHelper(boatId);
+        else
+            openSetupActivity();
 
         sampler = new Sampler();
         alert = new Alert(this, boatName, pitchAngleAlert, rollAngleAlert);
@@ -157,10 +172,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             registerSensors();
 
         btStop.setOnClickListener(view -> {
-            // launch SetupActivity
-            startActivity(new Intent(getApplicationContext(), SetupActivity.class));
-            finish();
+            forceSendReading();
+            voyageHelper.stopVoyage(voyageId);
+            openSetupActivity();
         });
+    }
+
+    private void openSetupActivity() {
+        Intent intent = new Intent(getApplicationContext(), SetupActivity.class);
+        if (voyageId != null) {
+            intent.putExtra("voyageId", voyageId);
+            intent.putExtra("maxPitch", sampler.getMaxPitch());
+            intent.putExtra("maxRoll", sampler.getMaxRoll());
+            intent.putExtra("minSignal", sampler.getMinSignal());
+        }
+        try {
+            Thread.sleep(1000); // try to delay 1 second to allow other transactions to complete
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        handler.removeCallbacksAndMessages(null);
+        startActivity(intent);
+        finish();
     }
 
     /**
@@ -411,6 +444,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 grantResults[0] == PackageManager.PERMISSION_GRANTED;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private void forceSendReading() {
+        Reading iReading = getCurrentReading();
+        iReading.setTimestamp(new Date());
+        savingQueue.forceSend(iReading);
+        saveReading(iReading);
+    }
+
     private void startTimer() {
         Runnable dtRunnable = new Runnable() {
             @Override
@@ -426,6 +467,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         };
         Runnable readingRunnable = new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void run() {
                 try {
@@ -433,6 +475,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         handler.postDelayed(this, readingDelay);
                     Reading reading = displayReadings();
                     checkAlert(reading);
+                    if (!initialSent && reading.getLongitude() != 0) {
+                        // not send and location is available
+                        // send data to server for the first location
+                        forceSendReading();
+                        initialSent = true;
+                    }
+                    else if (!initialSent && initSentTries > 20) { // 20 tries (5 seconds) is threshold limit
+                        // pass 5 seconds and location still not available; send initial anyway
+                        forceSendReading();
+                        initialSent = true;
+                    }
+                    else if (!initialSent)
+                        initSentTries++;
                 } catch (Exception e) {
                     criticalErrorHandler(e);
                 }
@@ -500,6 +555,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         manager.registerListener(this, mRotationVector, SensorManager.SENSOR_DELAY_GAME);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     private Reading getCurrentReading() {
         float lat = 0f;
         float lng = 0f;
@@ -510,6 +566,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (mLastLocation.hasAltitude())
                 alt = (float) mLastLocation.getAltitude();
         }
+        int signalStrength = Utility.getSignalStrength(getApplicationContext());
 
         return new Reading(
                 boatId,
@@ -529,10 +586,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 lng,
                 alt,
                 null,
-                Utility.formatTimestamp(new Date())
+                Utility.formatTimestamp(new Date()),
+                voyageId,
+                signalStrength
         );
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     private Reading displayReadings() {
         Reading reading = getCurrentReading();
         DecimalFormatter df = new DecimalFormatter();
