@@ -36,7 +36,7 @@ public class ReadingLog extends Logger {
 
         // write the heading
         if (isFirstWrite()) {
-            String heading = "Timestamp, Heading Angle, Pitch Angle, Roll Angle, Gyroscope-X, Gyroscope-Y, Gyroscope-Z, Accelerometer-X, Accelerometer-Y, Accelerometer-Z, Magnetometer-X, Magnetometer-Y, Magnetometer-Z, Latitude, Longitude, Altitude";
+            String heading = "Timestamp, Heading Angle, Pitch Angle, Roll Angle, Gyroscope-X, Gyroscope-Y, Gyroscope-Z, Accelerometer-X, Accelerometer-Y, Accelerometer-Z, Magnetometer-X, Magnetometer-Y, Magnetometer-Z, Latitude, Longitude, Altitude, Voyage ID, Signal Strength, Speed";
             write(heading);
         }
 

@@ -47,6 +47,8 @@ import com.google.android.gms.location.Priority;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -57,15 +59,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView tvHeading;
     private TextView tvPitch;
     private TextView tvRoll;
-    private TextView tvGyroX;
-    private TextView tvGyroY;
-    private TextView tvGyroZ;
-    private TextView tvAccelX;
-    private TextView tvAccelY;
-    private TextView tvAccelZ;
-    private TextView tvMagnetX;
-    private TextView tvMagnetY;
-    private TextView tvMagnetZ;
+    private TextView tvGyro;
+    private TextView tvAccel;
+    private TextView tvMagnet;
+    private TextView tvSignal;
+    private TextView tvSpeed;
     private TextView tvLatitude;
     private TextView tvLongitude;
     private TextView tvAltitude;
@@ -105,7 +103,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     FusedLocationProviderClient mFusedLocationClient;
     Location mLastLocation;
+    Location previousLocation;
     LocationCallback mLocationCallback;
+
+    Instant lastTime;
 
     private final Handler handler = new Handler();
     private Runnable postingRunnable;
@@ -185,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             intent.putExtra("maxPitch", sampler.getMaxPitch());
             intent.putExtra("maxRoll", sampler.getMaxRoll());
             intent.putExtra("minSignal", sampler.getMinSignal());
+            intent.putExtra("maxSpeed", sampler.getMaxSpeed());
         }
         try {
             Thread.sleep(1000); // try to delay 1 second to allow other transactions to complete
@@ -224,23 +226,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String filename = sdf.format(new Date()) + ".csv";
 
         // prepare the log file
-        File folder = null;
-        boolean canWriteToSd = false;
-        if (isSdPresent) {
-            // SD Card present
-            try {
-                folder = getApplicationContext().getExternalFilesDirs(null)[1];
-            } catch (Exception e) {
-                folder = getApplicationContext().getExternalFilesDirs(null)[0];
-            }
-            if (folder != null)
-                canWriteToSd = folder.canWrite();
-        }
-        if (!isSdPresent || !canWriteToSd) {
-            // no SD card or cannot write to it; store to internal storage
-            folder = new File(getApplicationContext().getFilesDir(), "logs");
-            if (!folder.exists()) folder.mkdir();
-        }
+        File folder = Utility.getLogFile(getApplicationContext(), isSdPresent);
+
+        // save the folder to shared preferences
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        pref.edit()
+                .putString("logFolder", folder.getAbsolutePath())
+                .commit();
 
         File logFile = new File(folder, filename);
         logger = new ReadingLog(logFile, this);
@@ -285,15 +277,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tvPitch = findViewById(R.id.tvPitch);
         tvPitch = findViewById(R.id.tvPitch);
         tvRoll = findViewById(R.id.tvRoll);
-        tvGyroX = findViewById(R.id.tvGyroX);
-        tvGyroY = findViewById(R.id.tvGyroY);
-        tvGyroZ = findViewById(R.id.tvGyroZ);
-        tvAccelX = findViewById(R.id.tvAccelX);
-        tvAccelY = findViewById(R.id.tvAccelY);
-        tvAccelZ = findViewById(R.id.tvAccelZ);
-        tvMagnetX = findViewById(R.id.tvMagnetX);
-        tvMagnetY = findViewById(R.id.tvMagnetY);
-        tvMagnetZ = findViewById(R.id.tvMagnetZ);
+        tvGyro = findViewById(R.id.tvGyro);
+        tvAccel = findViewById(R.id.tvAccel);
+        tvMagnet = findViewById(R.id.tvMagnet);
+        tvSpeed = findViewById(R.id.tvSpeed);
+        tvSignal = findViewById(R.id.tvSignal);
         tvLatitude = findViewById(R.id.tvLat);
         tvLongitude = findViewById(R.id.tvLong);
         tvAltitude = findViewById(R.id.tvAlt);
@@ -560,6 +548,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float lat = 0f;
         float lng = 0f;
         float alt = 0f;
+
+        previousLocation = mLastLocation;
+        // for the time computation
+        Instant now = Instant.now();
+        float time = 0f;
+        if (lastTime != null) {
+            Duration elapsed = Duration.between(lastTime, now);
+            time = elapsed.toMillis() / 1000.0f;
+        }
+        lastTime = now;
+
         if (mLastLocation != null) {
             lat = (float) mLastLocation.getLatitude();
             lng = (float) mLastLocation.getLongitude();
@@ -567,6 +566,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 alt = (float) mLastLocation.getAltitude();
         }
         int signalStrength = Utility.getSignalStrength(getApplicationContext());
+
+        // compute for distance travelled
+        float distance = 0f;
+        if (previousLocation != null && mLastLocation != null)
+            distance = previousLocation.distanceTo(mLastLocation);
+        // calculate the speed in m/s
+        float speed = distance / time;
 
         return new Reading(
                 boatId,
@@ -588,7 +594,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 null,
                 Utility.formatTimestamp(new Date()),
                 voyageId,
-                signalStrength
+                signalStrength,
+                speed
         );
     }
 
@@ -599,15 +606,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tvHeading.setText(df.format(reading.getHeadingAngle()));
         tvRoll.setText(df.format(reading.getRollAngle()));
         tvPitch.setText(df.format(reading.getPitchAngle()));
-        tvGyroX.setText(df.format(reading.getGyroX()));
-        tvGyroY.setText(df.format(reading.getGyroY()));
-        tvGyroZ.setText(df.format(reading.getGyroZ()));
-        tvAccelX.setText(df.format(reading.getAccelX()));
-        tvAccelY.setText(df.format(reading.getAccelY()));
-        tvAccelZ.setText(df.format(reading.getAccelZ()));
-        tvMagnetX.setText(df.format(reading.getMagX()));
-        tvMagnetY.setText(df.format(reading.getMagY()));
-        tvMagnetZ.setText(df.format(reading.getMagZ()));
+        tvGyro.setText(df.format(reading.getGyroX()) + " · " +
+                df.format(reading.getGyroY()) + " · " +
+                df.format(reading.getGyroZ()));
+        tvAccel.setText(df.format(reading.getAccelX()) + " · " +
+                df.format(reading.getAccelY()) + " · " +
+                df.format(reading.getAccelZ()));
+        tvMagnet.setText(df.format(reading.getMagX()) + " · " +
+                df.format(reading.getMagY()) + " · " +
+                df.format(reading.getMagZ()));
+        tvSignal.setText(reading.getSignalStrength().toString());
+        tvSpeed.setText(df.format(reading.getSpeed()));
 
         sampler.add(reading);
         return reading;

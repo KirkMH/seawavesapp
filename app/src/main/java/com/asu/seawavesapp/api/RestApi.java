@@ -1,6 +1,7 @@
 package com.asu.seawavesapp.api;
 
 import com.asu.seawavesapp.data.Boat;
+import com.asu.seawavesapp.data.LocalReadingAndError;
 import com.asu.seawavesapp.data.Reading;
 import com.asu.seawavesapp.data.Setting;
 
@@ -16,6 +17,10 @@ public interface RestApi {
     @Headers("Content-Type: application/json")
     @POST("boat/add")
     Call<Boat> addBoat(@Body Boat boat);
+
+    @Headers("Content-Type: application/json")
+    @POST("boat/local")
+    Call<LocalReadingAndError> uploadLocalData(@Body LocalReadingAndError local);
 
     @GET("settings")
     Call<Setting> getSettings();

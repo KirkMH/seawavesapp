@@ -6,14 +6,20 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Environment;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
+import com.asu.seawavesapp.log.ErrorLog;
+import com.asu.seawavesapp.log.ReadingLog;
+
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -97,8 +103,27 @@ public class Utility {
     public static int getSignalStrength(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getSignalStrength().getLevel();
-//        @SuppressLint("MissingPermission") CellInfoGsm cellInfoGsm = (CellInfoGsm) telephonyManager.getAllCellInfo().get(0);
-//        CellSignalStrengthGsm cellSignalStrengthGsm = cellInfoGsm.getCellSignalStrength();
-//        return cellSignalStrengthGsm.getLevel();
+    }
+
+    public static File getLogFile(Context context, boolean isSdPresent) {// prepare the log file
+        File folder = null;
+        boolean canWriteToSd = false;
+        if (isSdPresent) {
+            // SD Card present
+            try {
+                folder = context.getExternalFilesDirs(null)[1];
+            } catch (Exception e) {
+                folder = context.getExternalFilesDirs(null)[0];
+            }
+            if (folder != null)
+                canWriteToSd = folder.canWrite();
+        }
+        if (!isSdPresent || !canWriteToSd) {
+            // no SD card or cannot write to it; store to internal storage
+            folder = new File(context.getFilesDir(), "logs");
+            if (!folder.exists()) folder.mkdir();
+        }
+
+        return folder;
     }
 }

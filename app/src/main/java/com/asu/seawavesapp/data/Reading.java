@@ -50,6 +50,8 @@ public class Reading {
     Float altitude;
     @SerializedName("signalStrength")
     Integer signalStrength;
+    @SerializedName("speed")
+    Float speed;
     @SerializedName("timestamp")
     Date timestamp;
     @SerializedName("sent_timestamp")
@@ -85,11 +87,12 @@ public class Reading {
      * @param sent         - Date/time when the reading is sent to the server
      * @param voyageId     - Id of this voyage
      * @param signalStrength         - Signal strength level
+     * @param speed         - Speed in m/s
      */
     public Reading(Long boatId, Float headingAngle, Float pitchAngle, Float rollAngle, Float gyroX,
                    Float gyroY, Float gyroZ, Float accelX, Float accelY, Float accelZ,
                    Float magX, Float magY, Float magZ, Float latitude, Float longitude, Float altitude,
-                   Date timestamp, String sent, Long voyageId, Integer signalStrength) {
+                   Date timestamp, String sent, Long voyageId, Integer signalStrength, Float speed) {
         this.boatId = boatId;
         this.headingAngle = headingAngle;
         this.pitchAngle = pitchAngle;
@@ -110,6 +113,7 @@ public class Reading {
         this.sent_timestamp = sent;
         this.voyageId = voyageId;
         this.signalStrength = signalStrength;
+        this.speed = speed;
     }
 
     /**
@@ -140,6 +144,7 @@ public class Reading {
         rClone.sent_timestamp = this.sent_timestamp;
         rClone.voyageId = this.voyageId;
         rClone.signalStrength = this.signalStrength;
+        rClone.speed = speed;
         return rClone;
     }
 
@@ -325,6 +330,14 @@ public class Reading {
         this.signalStrength = signalStrength;
     }
 
+    public Float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(Float speed) {
+        this.speed = speed;
+    }
+
     /**
      * Clears the values of this reading.
      */
@@ -347,6 +360,7 @@ public class Reading {
         this.longitude = null;
         this.altitude = null;
         this.signalStrength = null;
+        this.speed = null;
         this.timestamp = null;
         this.sent_timestamp = null;
     }
@@ -379,6 +393,7 @@ public class Reading {
                 "," + longitude +
                 "," + altitude +
                 "," + voyageId +
-                "," + signalStrength;
+                "," + signalStrength +
+                "," + speed;
     }
 }

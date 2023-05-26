@@ -11,6 +11,7 @@ public class Sampler {
     private float maxPitch = Float.MIN_VALUE;
     private float maxRoll = Float.MIN_VALUE;
     private int minSignal = Integer.MAX_VALUE;
+    private float maxSpeed = Float.MIN_VALUE;
 
     public Sampler() {
         postSampler = new ReadingSampler();
@@ -27,6 +28,7 @@ public class Sampler {
             if (sample.getPitchAngle() > maxPitch) maxPitch = sample.getPitchAngle();
             if (sample.getRollAngle() > maxRoll) maxRoll = sample.getRollAngle();
             if (sample.getSignalStrength() < minSignal) minSignal = sample.getSignalStrength();
+            if (sample.getSpeed() > maxSpeed) maxSpeed = sample.getSpeed();
         }
     }
 
@@ -52,6 +54,10 @@ public class Sampler {
 
     public int getMinSignal() {
         return minSignal;
+    }
+
+    public float getMaxSpeed() {
+        return maxSpeed;
     }
 }
 

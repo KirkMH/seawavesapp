@@ -7,6 +7,6 @@
     <dimen name="inner_rect_margin">7dp</dimen>
     <dimen name="rect_padding">5dp</dimen>
     <dimen name="bottom_margin">20dp</dimen>
-    <dimen name="bottom_margin_row">10dp</dimen>
+    <dimen name="bottom_margin_row">15dp</dimen>
     <dimen name="inner_rect_padding">0dp</dimen>
 </resources>

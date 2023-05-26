@@ -12,7 +12,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="110dp"
-        android:layout_margin="10dp"
+        android:layout_margin="20dp"
         android:padding="10dp"
         android:contentDescription="@string/app_name"
         android:src="@drawable/seawaves_logo_fit" />
@@ -150,6 +150,117 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvSpeed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/inner_rect_margin"
+                        android:text="@string/zero"
+                        android:textAlignment="center"
+                        android:textColor="@color/dark_gray"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/speed_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="2" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="30"
+                    android:background="@drawable/rounded_rect_bg"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvSignal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/inner_rect_margin"
+                        android:text="@string/zero"
+                        android:textAlignment="center"
+                        android:textColor="@color/dark_gray"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="90"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/signal_title"
+                            android:textAlignment="center"
+                            android:background="@drawable/line_top"
+                            android:layout_margin="3dp"
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="3" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/bottom_margin_row"
+                android:orientation="horizontal">
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="3" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="30"
+                    android:background="@drawable/rounded_rect_bg"
+                    android:orientation="vertical">
+
+                    <TextView
                         android:id="@+id/tvPitch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -237,69 +348,9 @@
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="1dp"
-                    android:layout_weight="3" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/bottom_margin_row"
-                android:orientation="horizontal">
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="3" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="30"
-                    android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvGyroX"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/inner_rect_margin"
-                        android:text="@string/zero"
-                        android:textAlignment="center"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="18sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="90"
-                            android:layout_gravity="center_horizontal"
-                            android:text="@string/gyrox_title"
-                            android:textAlignment="center"
-                            android:background="@drawable/line_top"
-                            android:layout_margin="3dp"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp" />
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
                     android:layout_weight="2" />
 
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -309,7 +360,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvGyroY"
+                        android:id="@+id/tvAlt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
@@ -331,56 +382,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="90"
                             android:layout_gravity="center_horizontal"
-                            android:text="@string/gyroy_title"
-                            android:textAlignment="center"
-                            android:background="@drawable/line_top"
-                            android:layout_margin="3dp"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp" />
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="2" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="30"
-                    android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvGyroZ"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/inner_rect_margin"
-                        android:text="@string/zero"
-                        android:textAlignment="center"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="18sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="90"
-                            android:layout_gravity="center_horizontal"
-                            android:text="@string/gyroz_title"
+                            android:text="@string/alt_title"
                             android:textAlignment="center"
                             android:background="@drawable/line_top"
                             android:layout_margin="3dp"
@@ -419,7 +421,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvAccelX"
+                        android:id="@+id/tvGyro"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
@@ -441,7 +443,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="90"
                             android:layout_gravity="center_horizontal"
-                            android:text="@string/accelx_title"
+                            android:text="@string/gyro_title"
                             android:textAlignment="center"
                             android:background="@drawable/line_top"
                             android:layout_margin="3dp"
@@ -468,7 +470,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvAccelY"
+                        android:id="@+id/tvAccel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
@@ -490,7 +492,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="90"
                             android:layout_gravity="center_horizontal"
-                            android:text="@string/accely_title"
+                            android:text="@string/accel_title"
                             android:textAlignment="center"
                             android:background="@drawable/line_top"
                             android:layout_margin="3dp"
@@ -517,7 +519,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvAccelZ"
+                        android:id="@+id/tvMagnet"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/inner_rect_margin"
@@ -539,166 +541,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="90"
                             android:layout_gravity="center_horizontal"
-                            android:text="@string/accelz_title"
-                            android:textAlignment="center"
-                            android:background="@drawable/line_top"
-                            android:layout_margin="3dp"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp" />
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="3" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/bottom_margin_row"
-                android:orientation="horizontal">
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="3" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="30"
-                    android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvMagnetX"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/inner_rect_margin"
-                        android:text="@string/zero"
-                        android:textAlignment="center"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="18sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="90"
-                            android:layout_gravity="center_horizontal"
-                            android:text="@string/magnetx_title"
-                            android:textAlignment="center"
-                            android:background="@drawable/line_top"
-                            android:layout_margin="3dp"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp" />
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="2" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="30"
-                    android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvMagnetY"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/inner_rect_margin"
-                        android:text="@string/zero"
-                        android:textAlignment="center"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="18sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="90"
-                            android:layout_gravity="center_horizontal"
-                            android:text="@string/magnety_title"
-                            android:textAlignment="center"
-                            android:background="@drawable/line_top"
-                            android:layout_margin="3dp"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp" />
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="2" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="30"
-                    android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvMagnetZ"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/inner_rect_margin"
-                        android:text="@string/zero"
-                        android:textAlignment="center"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="18sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="90"
-                            android:layout_gravity="center_horizontal"
-                            android:text="@string/magnetz_title"
+                            android:text="@string/magnet_title"
                             android:textAlignment="center"
                             android:background="@drawable/line_top"
                             android:layout_margin="3dp"
@@ -744,7 +587,7 @@
                         android:text="@string/zero"
                         android:textAlignment="center"
                         android:textColor="@color/dark_gray"
-                        android:textSize="16sp"
+                        android:textSize="18sp"
                         app:autoSizeTextType="uniform" />
 
                     <LinearLayout
@@ -794,7 +637,7 @@
                         android:text="@string/zero"
                         android:textAlignment="center"
                         android:textColor="@color/dark_gray"
-                        android:textSize="16sp"
+                        android:textSize="18sp"
                         app:autoSizeTextType="uniform" />
 
                     <LinearLayout
@@ -811,55 +654,6 @@
                             android:layout_weight="90"
                             android:layout_gravity="center_horizontal"
                             android:text="@string/long_title"
-                            android:textAlignment="center"
-                            android:background="@drawable/line_top"
-                            android:layout_margin="3dp"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp" />
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="2" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="30"
-                    android:background="@drawable/rounded_rect_bg"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvAlt"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/inner_rect_margin"
-                        android:text="@string/zero"
-                        android:textAlignment="center"
-                        android:textColor="@color/dark_gray"
-                        android:textSize="16sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="5" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="90"
-                            android:layout_gravity="center_horizontal"
-                            android:text="@string/alt_title"
                             android:textAlignment="center"
                             android:background="@drawable/line_top"
                             android:layout_margin="3dp"

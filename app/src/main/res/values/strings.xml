@@ -3,6 +3,7 @@
     <string name="subtitle">Sea-condition Emergency Alert and Warning Apparatus for Vessel Safety</string>
     <string name="action_setting">Settings</string>
     <string name="action_calibrate">Calibrate Compass</string>
+    <string name="action_upload">Upload Local Data</string>
     <string name="action_info">Configuration Info</string>
     <string name="action_about">About</string>
 
@@ -45,18 +46,14 @@
     <string name="pitch_title">Pitch Angle</string>
     <string name="roll_title">Roll Angle</string>
     <string name="heading_title">Heading Angle</string>
-    <string name="gyrox_title">Gyro-X</string>
-    <string name="gyroy_title">Gyro-Y</string>
-    <string name="gyroz_title">Gyro-Z</string>
-    <string name="accelx_title">Accel-X</string>
-    <string name="accely_title">Accel-Y</string>
-    <string name="accelz_title">Accel-Z</string>
-    <string name="magnetx_title">Magnet-X</string>
-    <string name="magnety_title">Magnet-Y</string>
-    <string name="magnetz_title">Magnet-Z</string>
+    <string name="gyro_title">Gyroscope</string>
+    <string name="accel_title">Accelerometer</string>
+    <string name="magnet_title">Magnetometer</string>
     <string name="lat_title">Latitude</string>
     <string name="long_title">Longitude</string>
     <string name="alt_title">Altitude</string>
+    <string name="speed_title">Speed (m/s)</string>
+    <string name="signal_title">Signal Strength</string>
 
     <!-- Other Preferences -->
     <string name="saving_title">Saving Rate (in milliseconds)</string>

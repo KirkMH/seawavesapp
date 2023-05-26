@@ -12,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -27,10 +28,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.asu.seawavesapp.api.ApiClient;
+import com.asu.seawavesapp.api.RestApi;
+import com.asu.seawavesapp.data.LocalReadingAndError;
 import com.asu.seawavesapp.databinding.ActivitySetupBinding;
+import com.asu.seawavesapp.log.ErrorLog;
+import com.asu.seawavesapp.log.Logger;
+import com.asu.seawavesapp.log.ReadingLog;
 import com.asu.seawavesapp.util.DecimalFormatter;
 import com.asu.seawavesapp.util.Utility;
 import com.asu.seawavesapp.util.VoyageHelper;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SetupActivity extends AppCompatActivity implements SensorEventListener {
     private final Handler handler = new Handler();
@@ -69,8 +84,9 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
             float maxPitch = extras.getFloat("maxPitch", 0f);
             float maxRoll = extras.getFloat("maxRoll", 0f);
             int minSignal = extras.getInt("minSignal", 0);
+            float maxSpeed = extras.getFloat("maxSpeed", 0f);
             if (vId > 0)
-                displaySummary(maxPitch, maxRoll, minSignal);
+                displaySummary(maxPitch, maxRoll, minSignal, maxSpeed);
         }
 
         // when the Start button is clicked, pass in the current
@@ -115,7 +131,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         handler.removeCallbacksAndMessages(null);
     }
 
-    private void displaySummary(float maxPitch, float maxRoll, int minSignal) {
+    private void displaySummary(float maxPitch, float maxRoll, int minSignal, float maxSpeed) {
         final Dialog dialog = new Dialog(SetupActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
@@ -125,11 +141,13 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         TextView pitch = (TextView) dialog.findViewById(R.id.tvSummaryPitch);
         TextView roll = (TextView) dialog.findViewById(R.id.tvSummaryRoll);
         TextView signal = (TextView) dialog.findViewById(R.id.tvSummarySignal);
+        TextView speed = (TextView) dialog.findViewById(R.id.tvSummarySpeed);
         pitch.setText(df.format(maxPitch));
         roll.setText(df.format(maxRoll));
-        String signalMeaning = " - " + (minSignal == 4 ? "Very Good" : minSignal == 3 ? "Good" :
-                minSignal == 2 ? "Average" : minSignal == 1 ? "Poor" : "Very Poor");
-        signal.setText(minSignal + signalMeaning);
+        speed.setText(df.format(maxSpeed));
+//        String signalMeaning = " - " + (minSignal == 4 ? "Very Good" : minSignal == 3 ? "Good" :
+//                minSignal == 2 ? "Average" : minSignal == 1 ? "Poor" : "Very Poor");
+        signal.setText(minSignal + "");
 
         Button ok = dialog.findViewById(R.id.btOK);
         ok.setOnClickListener(v -> dialog.dismiss());
@@ -319,6 +337,10 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
             startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
             return true;
         }
+        else if (id == R.id.action_upload) {
+            uploadLocalData();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -330,7 +352,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         voyageHelper = new VoyageHelper(boatId);
 
         ProgressDialog pg = new ProgressDialog(SetupActivity.this);
-        pg.setMessage("Starting new voyage. Please wait...");
+        pg.setMessage("Connecting to server.\nPlease wait...");
         pg.setTitle("Start Voyage");
         pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         pg.show();
@@ -356,10 +378,82 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
                 } catch (Exception e) {
                     pg.dismiss();
                     e.printStackTrace();
-//                    Toast.makeText(getApplicationConte77
                 }
             }
         }).start();
+
+    }
+
+
+    private boolean success;
+    private void uploadLocalData() {
+        // retrieve folder location
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String folder = pref.getString("logFolder", "");
+        Long boatId = Long.parseLong(pref.getString(getResources().getString(R.string.id_key), "0"));
+        if (folder.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "No log file from this day.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // file name for the log file
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String filename = sdf.format(new Date()) + ".csv";
+
+        File logFile = new File(folder, filename);
+        Logger logger = new ReadingLog(logFile, this);
+        Log.v("Logger", "Reading: " + logger.getFileUrl());
+        String data = logger.readAll();
+
+        File errorFile = new File(folder, "errors.txt");
+        Logger errLogs = new ErrorLog(errorFile, this);
+        Log.v("Logger", "Error: " + errLogs.getFileUrl());
+        String errors = logger.readAll();
+
+        ProgressDialog pg = new ProgressDialog(SetupActivity.this);
+        pg.setMessage("Uploading to server.\nPlease wait...");
+        pg.setTitle("Upload Local Data");
+        pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pg.show();
+        pg.setCancelable(false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    LocalReadingAndError lre = new LocalReadingAndError(boatId, data, errors);
+                    RestApi restApi = ApiClient.getApi();
+                    Call<LocalReadingAndError> call = restApi.uploadLocalData(lre);
+
+                    call.enqueue(new Callback<LocalReadingAndError>() {
+                        @Override
+                        public void onResponse(Call<LocalReadingAndError> call, Response<LocalReadingAndError> response) {
+                            Log.v("voyage", "online");
+                            success = true;
+                            pg.dismiss();
+                        }
+
+                        @Override
+                        public void onFailure(Call<LocalReadingAndError> call, Throwable t) {
+                            Log.v("voyage", "offline");
+                            success = false;
+                            call.cancel();
+                            pg.dismiss();
+                        }
+                    });
+
+                    Thread.sleep(3000);
+                } catch (Exception e) {
+                    success = false;
+                    pg.dismiss();
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        if (success)
+            Toast.makeText(getApplicationContext(), "Local data uploaded.", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(getApplicationContext(), "Unable to upload local.", Toast.LENGTH_SHORT).show();
 
     }
 
