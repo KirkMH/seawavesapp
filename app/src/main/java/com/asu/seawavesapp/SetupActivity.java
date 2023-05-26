@@ -408,7 +408,7 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         File errorFile = new File(folder, "errors.txt");
         Logger errLogs = new ErrorLog(errorFile, this);
         Log.v("Logger", "Error: " + errLogs.getFileUrl());
-        String errors = logger.readAll();
+        String errors = errLogs.readAll();
 
         ProgressDialog pg = new ProgressDialog(SetupActivity.this);
         pg.setMessage("Uploading to server.\nPlease wait...");
@@ -416,32 +416,56 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         pg.show();
         pg.setCancelable(false);
+
+        LocalReadingAndError lre = new LocalReadingAndError(boatId, data, errors);
+        RestApi restApi = ApiClient.getApi();
+        Call<LocalReadingAndError> call = restApi.uploadLocalData(lre);
+
+        upload(pg, call, new OnActionComplete() {
+            @Override
+            public void onComplete(boolean success) {
+                Toast.makeText(getApplicationContext(), "Local data uploaded.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unable to upload local.", Toast.LENGTH_SHORT).show();
+            }
+        });
+//
+//        Response<LocalReadingAndError> response = call.execute();
+//        success = response.isSuccessful();
+//
+//
+//        if (success)
+//            Toast.makeText(getApplicationContext(), "Local data uploaded.", Toast.LENGTH_SHORT).show();
+//        else
+//            Toast.makeText(getApplicationContext(), "Unable to upload local.", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void upload(ProgressDialog pg, Call<LocalReadingAndError> call, OnActionComplete onActionComplete) {
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    LocalReadingAndError lre = new LocalReadingAndError(boatId, data, errors);
-                    RestApi restApi = ApiClient.getApi();
-                    Call<LocalReadingAndError> call = restApi.uploadLocalData(lre);
-
                     call.enqueue(new Callback<LocalReadingAndError>() {
                         @Override
                         public void onResponse(Call<LocalReadingAndError> call, Response<LocalReadingAndError> response) {
                             Log.v("voyage", "online");
-                            success = true;
                             pg.dismiss();
+                            onActionComplete.onComplete(true);
                         }
 
                         @Override
                         public void onFailure(Call<LocalReadingAndError> call, Throwable t) {
                             Log.v("voyage", "offline");
-                            success = false;
+                            onActionComplete.onError(t);
                             call.cancel();
                             pg.dismiss();
                         }
                     });
-
-                    Thread.sleep(3000);
                 } catch (Exception e) {
                     success = false;
                     pg.dismiss();
@@ -449,12 +473,10 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
                 }
             }
         }).start();
-
-        if (success)
-            Toast.makeText(getApplicationContext(), "Local data uploaded.", Toast.LENGTH_SHORT).show();
-        else
-            Toast.makeText(getApplicationContext(), "Unable to upload local.", Toast.LENGTH_SHORT).show();
-
     }
 
+    interface OnActionComplete {
+        void onComplete(boolean success);
+        void onError(Throwable t);
+    }
 }
