@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private VoyageHelper voyageHelper;
     private boolean initialSent = false;
     private int initSentTries = 0;
+    private float speed = 0f;
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -314,6 +315,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         magneticDeclination = CompassHelper.calculateMagneticDeclination(
                                 mLastLocation.getLatitude(), mLastLocation.getLongitude(), mLastLocation.getAltitude());
                     }
+
+                    // compute for the speed
+                    if (mLastLocation.hasSpeed() && mLastLocation.getSpeed() > 0) {
+                        Log.v("speed", "Using getSpeed");
+                        speed = mLastLocation.getSpeed();
+                    }
+                    else if (previousLocation != null) {
+                        Log.v("speed", "calculating");
+                        // Convert milliseconds to seconds
+                        float elapsedTimeInSeconds = (mLastLocation.getTime() - previousLocation.getTime()) / 1000f;
+                        float distanceInMeters = previousLocation.distanceTo(mLastLocation);
+                        speed = distanceInMeters / elapsedTimeInSeconds;
+                        Log.v("speed", "d = " + distanceInMeters);
+                        Log.v("speed", "t = " + elapsedTimeInSeconds);
+                    }
+                    previousLocation = mLastLocation;
+                    Log.v("speed", "Speed: " + speed);
+
                     isLocationRetrieved = true;
                 } else {
                     // if no location is retrieved, set to zero
@@ -549,30 +568,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float lng = 0f;
         float alt = 0f;
 
-        previousLocation = mLastLocation;
-        // for the time computation
-        Instant now = Instant.now();
-        float time = 0f;
-        if (lastTime != null) {
-            Duration elapsed = Duration.between(lastTime, now);
-            time = elapsed.toMillis() / 1000.0f;
-        }
-        lastTime = now;
-
-        if (mLastLocation != null) {
-            lat = (float) mLastLocation.getLatitude();
-            lng = (float) mLastLocation.getLongitude();
-            if (mLastLocation.hasAltitude())
-                alt = (float) mLastLocation.getAltitude();
-        }
         int signalStrength = Utility.getSignalStrength(getApplicationContext());
-
-        // compute for distance travelled
-        float distance = 0f;
-        if (previousLocation != null && mLastLocation != null)
-            distance = previousLocation.distanceTo(mLastLocation);
-        // calculate the speed in m/s
-        float speed = distance / time;
 
         return new Reading(
                 boatId,

@@ -432,16 +432,6 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
                 Toast.makeText(getApplicationContext(), "Unable to upload local.", Toast.LENGTH_SHORT).show();
             }
         });
-//
-//        Response<LocalReadingAndError> response = call.execute();
-//        success = response.isSuccessful();
-//
-//
-//        if (success)
-//            Toast.makeText(getApplicationContext(), "Local data uploaded.", Toast.LENGTH_SHORT).show();
-//        else
-//            Toast.makeText(getApplicationContext(), "Unable to upload local.", Toast.LENGTH_SHORT).show();
-
     }
 
     private void upload(ProgressDialog pg, Call<LocalReadingAndError> call, OnActionComplete onActionComplete) {
