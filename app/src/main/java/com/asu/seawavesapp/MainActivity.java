@@ -105,8 +105,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Location mLastLocation;
     Location previousLocation;
     LocationCallback mLocationCallback;
-
-    Instant lastTime;
+    private float longitude;
+    private float latitude;
 
     private final Handler handler = new Handler();
     private Runnable postingRunnable;
@@ -354,6 +354,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(locationDelay);
         locationRequest.setFastestInterval(locationDelay);
+        locationRequest.setFastestInterval(locationDelay);
         locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
         return locationRequest;
     }
@@ -567,6 +568,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float lat = 0f;
         float lng = 0f;
         float alt = 0f;
+
+        if (mLastLocation != null) {
+            lat = (float) mLastLocation.getLatitude();
+            lng = (float) mLastLocation.getLongitude();
+            alt = (float) mLastLocation.getAltitude();
+        }
 
         int signalStrength = Utility.getSignalStrength(getApplicationContext());
 
