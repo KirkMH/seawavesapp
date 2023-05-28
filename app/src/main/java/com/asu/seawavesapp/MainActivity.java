@@ -619,7 +619,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 df.format(reading.getMagY()) + " · " +
                 df.format(reading.getMagZ()));
         tvSignal.setText(reading.getSignalStrength().toString());
-        tvSpeed.setText(df.format(reading.getSpeed()));
+        tvSpeed.setText(df.format(reading.getSpeed(), 2));
 
         sampler.add(reading);
         return reading;
