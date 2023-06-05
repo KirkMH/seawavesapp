@@ -16,6 +16,7 @@ import com.asu.seawavesapp.api.RestApi;
 import com.asu.seawavesapp.data.Boat;
 import com.asu.seawavesapp.data.Setting;
 import com.asu.seawavesapp.databinding.ActivitySplashBinding;
+import com.asu.seawavesapp.util.OnActionComplete;
 import com.google.android.material.snackbar.Snackbar;
 
 import retrofit2.Call;
@@ -43,6 +44,7 @@ public class SplashActivity extends AppCompatActivity {
 
         retrieveSavedPreferences();
         restApi = ApiClient.getApi();
+
         getSetting();
     }
 
@@ -50,7 +52,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        new Handler().postDelayed(this::verifySavedPreference, 2000);
+//        new Handler().postDelayed(this::verifySavedPreference, 2000);
     }
 
     /**
@@ -71,7 +73,7 @@ public class SplashActivity extends AppCompatActivity {
      */
     private void verifySavedPreference() {
         if (critical == null)
-            processErrorResponse(null, true);
+            processErrorResponse(null, true, null);
         else if (this.boatId == null)
             registerUser();
         else {
@@ -93,58 +95,111 @@ public class SplashActivity extends AppCompatActivity {
      * Retrieves settings from the server and stores it using shared preferences.
      */
     private void getSetting() {
+        getGeneralSetting(new OnActionComplete() {
+            @Override
+            public void onComplete(boolean success) {
+                if (success) {
+                    getBoatSetting(new OnActionComplete() {
+                        @Override
+                        public void onComplete(boolean success) {
+                            verifySavedPreference();
+                        }
+
+                        @Override
+                        public void onError(Throwable t) {
+
+                        }
+                    });
+                }
+                else
+                    processErrorResponse(null, false, null);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                processErrorResponse(null, false, t.getMessage());
+            }
+        });
+    }
+
+    private void getGeneralSetting(OnActionComplete onActionComplete) {
         // for the general settings
-        Call<Setting> call = restApi.getSettings();
-        call.enqueue(new Callback<Setting>() {
-            @Override
-            public void onResponse(Call<Setting> call, Response<Setting> response) {
-                Setting rSetting = response.body();
-                if (rSetting != null) {
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    pref.edit()
-                            .putString(getResources().getString(R.string.pitch_key), rSetting.criticalPitchAngle.toString())
-                            .putString(getResources().getString(R.string.roll_key), rSetting.criticalRollAngle.toString())
-                            .putString(getResources().getString(R.string.reading_key), rSetting.readingRate.toString())
-                            .putString(getResources().getString(R.string.saving_key), rSetting.savingRate.toString())
-                            .putString(getResources().getString(R.string.sms_key), rSetting.smsRate.toString())
-                            .putString(getResources().getString(R.string.post_key), rSetting.postRate.toString())
-                            .putString(getResources().getString(R.string.cp_key), rSetting.mobileNumber)
-                            .apply();
-                } else
-                    processErrorResponse(call, false);
-            }
+        new Thread(() -> {
+            Call<Setting> call = restApi.getSettings();
+            call.enqueue(new Callback<Setting>() {
+                @Override
+                public void onResponse(Call<Setting> call, Response<Setting> response) {
+                    Setting rSetting = response.body();
+                    if (rSetting != null) {
+                        String roll = rSetting.criticalRollAngle.toString();
+                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        pref.edit()
+                                .putString(getResources().getString(R.string.pitch_key), rSetting.criticalPitchAngle.toString())
+                                .putString(getResources().getString(R.string.roll_key), roll)
+                                .putString(getResources().getString(R.string.reading_key), rSetting.readingRate.toString())
+                                .putString(getResources().getString(R.string.saving_key), rSetting.savingRate.toString())
+                                .putString(getResources().getString(R.string.sms_key), rSetting.smsRate.toString())
+                                .putString(getResources().getString(R.string.post_key), rSetting.postRate.toString())
+                                .putString(getResources().getString(R.string.cp_key), rSetting.mobileNumber)
+                                .apply();
+                        if (roll != null) {
+                            critical = Float.parseFloat(roll);
+                            onActionComplete.onComplete(true);
+                            return;
+                        }
+                    } else {
+                        processErrorResponse(call, false, null);
+                    }
 
-            @Override
-            public void onFailure(Call<Setting> call, Throwable t) {
-                processErrorResponse(call, false);
-            }
-        });
+                    onActionComplete.onComplete(false);
+                }
 
-        // for the boat details
-        Call<Boat> boatCall = restApi.getBoatDetail(boatId);
-        boatCall.enqueue(new Callback<Boat>() {
-            @Override
-            public void onResponse(Call<Boat> call, Response<Boat> response) {
-                Boat rBoat = response.body();
-                if (rBoat != null) {
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    pref.edit()
-                            .putString(getResources().getString(R.string.boat_key), rBoat.name)
-                            .putString(getResources().getString(R.string.owner_key), rBoat.owner)
-                            .putString(getResources().getString(R.string.contact_key), rBoat.ownerContact)
-                            .putString(getResources().getString(R.string.length_key), rBoat.length.toString())
-                            .putString(getResources().getString(R.string.width_key), rBoat.width.toString())
-                            .putString(getResources().getString(R.string.height_key), rBoat.height.toString())
-                            .apply();
-                } else
-                    processErrorResponse(boatCall, false);
-            }
+                @Override
+                public void onFailure(Call<Setting> call, Throwable t) {
+                    processErrorResponse(call, false, null);
+                    onActionComplete.onError(t);
+                }
+            });
+        }).start();
+    }
 
-            @Override
-            public void onFailure(Call<Boat> call, Throwable t) {
-                processErrorResponse(call, false);
+
+    private void getBoatSetting(OnActionComplete onActionComplete) {
+        new Thread(() -> {
+            if (boatId == null) {
+                onActionComplete.onComplete(true);
+                return;
             }
-        });
+            // for the boat details
+            Call<Boat> boatCall = restApi.getBoatDetail(boatId);
+            boatCall.enqueue(new Callback<Boat>() {
+                @Override
+                public void onResponse(Call<Boat> call, Response<Boat> response) {
+                    Boat rBoat = response.body();
+                    if (rBoat != null) {
+                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        pref.edit()
+                                .putString(getResources().getString(R.string.boat_key), rBoat.name)
+                                .putString(getResources().getString(R.string.owner_key), rBoat.owner)
+                                .putString(getResources().getString(R.string.contact_key), rBoat.ownerContact)
+                                .putString(getResources().getString(R.string.length_key), rBoat.length.toString())
+                                .putString(getResources().getString(R.string.width_key), rBoat.width.toString())
+                                .putString(getResources().getString(R.string.height_key), rBoat.height.toString())
+                                .apply();
+                        onActionComplete.onComplete(true);
+                    } else {
+                        processErrorResponse(boatCall, false, null);
+                        onActionComplete.onComplete(false);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Boat> call, Throwable t) {
+                    processErrorResponse(call, false, null);
+                    onActionComplete.onError(t);
+                }
+            });
+        }).start();
     }
 
     /**
@@ -154,13 +209,15 @@ public class SplashActivity extends AppCompatActivity {
      * @param call     - the call that was tried to be executed
      * @param required - when <code>true</code>, displays a SnackBar; <code>false</code> displays a Toast
      */
-    private void processErrorResponse(Call call, boolean required) {
+    private void processErrorResponse(Call call, boolean required, String message) {
         if (required) {
             LinearLayout llSplash = findViewById(R.id.llSplash);
             Snackbar.make(llSplash, "Cannot retrieve settings from the server.", Snackbar.LENGTH_INDEFINITE)
                     .setAction("Retry", view -> getSetting())
                     .show();
-        } else {
+        } else if (message != null) {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        }else {
             Toast.makeText(getApplicationContext(), "Please ensure good internet connection. ", Toast.LENGTH_SHORT).show();
         }
         if (call != null)

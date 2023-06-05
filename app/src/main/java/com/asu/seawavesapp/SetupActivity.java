@@ -36,6 +36,7 @@ import com.asu.seawavesapp.log.ErrorLog;
 import com.asu.seawavesapp.log.Logger;
 import com.asu.seawavesapp.log.ReadingLog;
 import com.asu.seawavesapp.util.DecimalFormatter;
+import com.asu.seawavesapp.util.OnActionComplete;
 import com.asu.seawavesapp.util.Utility;
 import com.asu.seawavesapp.util.VoyageHelper;
 
@@ -465,8 +466,4 @@ public class SetupActivity extends AppCompatActivity implements SensorEventListe
         }).start();
     }
 
-    interface OnActionComplete {
-        void onComplete(boolean success);
-        void onError(Throwable t);
-    }
 }
